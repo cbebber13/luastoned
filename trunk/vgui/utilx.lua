@@ -12,36 +12,36 @@ utilx.Version = 1.0
 --------------------
 
 local meta = FindMetaTable("Player")  
-if (!meta) then return end
+if (meta) then
+	--[[
+	User: blackops7799
+	Name: GetUserGroup()
+	Usage:
+		if player.GetByID(1):GetUserGroup() == "<group name>" then
+			-- do something
+		end
+	]]
 
---[[
-User: blackops7799
-Name: GetUserGroup()
-Usage:
-	if player.GetByID(1):GetUserGroup() == "<group name>" then
-		-- do something
+	function meta:GetUserGroup()
+		return self:GetNetworkedString("UserGroup")  
 	end
-]]
 
-function meta:GetUserGroup()
-	return self:GetNetworkedString("UserGroup")  
-end
+	--[[
+	User: Python1320
+	Name: IsStuck() - Taken from Source SDK, doesn't fully work though. Just throwing ideas.
+	Usage:
+		<missing>
+	]]
 
---[[
-User: Python1320
-Name: IsStuck() - Taken from Source SDK, doesn't fully work though. Just throwing ideas.
-Usage:
-	<missing>
-]]
-
-function meta:IsStuck()
-	local tracedata = {}
-	tracedata.start = self:GetPos()
-	tracedata.endpos = self:GetPos()
-	tracedata.mask = MASK_PLAYERSOLID or 33636363
-	tracedata.filter = self
-	local trace = util.TraceEntity(tracedata,self)
-	return trace.StartSolid
+	function meta:IsStuck()
+		local tracedata = {}
+		tracedata.start = self:GetPos()
+		tracedata.endpos = self:GetPos()
+		tracedata.mask = MASK_PLAYERSOLID or 33636363
+		tracedata.filter = self
+		local trace = util.TraceEntity(tracedata,self)
+		return trace.StartSolid
+	end
 end
 
 ---------------------
@@ -143,7 +143,7 @@ Usage:
 function utilx.IndexFromValue(tbl,val)
 	local k,v
 	for k,v in pairs(tbl) do  
-		if (v == val) return k end  
+		if (v == val) then return k end  
 	end
 	return nil
 end
@@ -156,7 +156,7 @@ Usage:
 ]]
 
 function utilx.CleanString(str)
-	local str = str:gsub(" ","_")
+	str = str:gsub(" ","_")
 	str = str:gsub("[^%a%d_]","")
 	return str
 end
@@ -263,11 +263,11 @@ Usage:
 	<missing>
 ]]
 
-function utilx.getCommand(str)  
+function utilx.GetCommand(str)  
 	return str:match("%w+")  
 end  
 
-function utilx.getArguments(str)  
+function utilx.GetArguments(str)  
 	local args = {}  
 	local i = 1
 	
@@ -291,14 +291,4 @@ function utilx.Average(...)
 		ret = ret + num  
 	end  
 	return ret / #arg, ret  
-end  
-
-
-
-
-
-
-
-
-
-
+end
