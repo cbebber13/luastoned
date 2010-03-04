@@ -13,6 +13,7 @@ function FormatTime(sec,format)
 end
 
 LuaMenu = {
+	Version = 1.0
 	IsOpen = false,
 	Console = {["Text"] = ""},
 }
@@ -79,6 +80,10 @@ function LuaMenu:Init()
 		LuaMenu.Frame:SetTitle("LuaMenu - running since "..FormatTime(CurTime(),"%02i:%02i:%02i").." ("..LuaMenu.Frame:GetWide().." x "..LuaMenu.Frame:GetTall()..")")
 	end)
 	concommand.Add("lua_menu_close",function() LuaMenu.Frame:Close() end)
+	
+	http.Get("http://repo.gmod.biz/update.php?version="..self.Version,"",function(cont,size)
+		print(cont)
+	end)
 end
 
 function LuaMenu:Toggle()
