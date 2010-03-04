@@ -35,10 +35,6 @@ function LuaMenu:Init()
 		self:SetVisible(false)
 		self:SetKeyboardInputEnabled(false)
 		self:SetMouseInputEnabled(false)
-		hook.Remove("ConsoleText","Shoop")
-		hook.Remove("ErrorText","Shoop")
-		hook.Remove("ChatText","Shoop")
-		hook.Remove("IrcText","Shoop")
 	end
 	self.Frame.OldPerformLayout = self.Frame.PerformLayout
 	self.Frame.PerformLayout = function(self)
@@ -101,4 +97,4 @@ function LuaMenu:Toggle()
 		self.Frame:SetMouseInputEnabled(false)
 	end
 end
-concommand.Add("lua_menu",function() LuaMenu:Toggle() end)[/lua]
+concommand.Add("lua_menu",function() LuaMenu:Toggle() end)
