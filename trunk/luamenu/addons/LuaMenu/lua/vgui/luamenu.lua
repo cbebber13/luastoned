@@ -13,7 +13,7 @@ function FormatTime(sec,format)
 end
 
 LuaMenu = {
-	Version = 1.0
+	Version = 1.0,
 	IsOpen = false,
 	Console = {["Text"] = ""},
 }
