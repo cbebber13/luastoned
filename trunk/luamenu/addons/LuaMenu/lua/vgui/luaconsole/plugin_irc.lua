@@ -102,8 +102,8 @@ function Irc:Auth(arg)
 			print("Not connected to "..host)
 			return
 		end
-		self.Sockets[host].sock:send("AUTHSERV auth lua TlkTx7hx\r\n")
-		self.Sockets[host].sock:send("MODE "..arg.." +x\r\n")
+		//self.Sockets[host].sock:send("AUTHSERV auth username password\r\n") -- add your username/pw and uncomment those lines
+		//self.Sockets[host].sock:send("MODE "..arg.." +x\r\n")
 	end
 end
 concommand.Add("lua_irc_auth",function(p,c,a) Irc:Auth(a[1]) end)
