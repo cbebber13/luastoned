@@ -192,7 +192,7 @@ end
 hook.Add("Think","Irc Think",function() Irc:Think() end)
 
 function Irc:Format(str)
-	if str:sub(1,1) == "!" then
+	if str:sub(1,1) == "/" then
 		local cmd,arg = str:sub(2):match("([%w_]+)%s?(.*)")
 		if cmd == "join" then
 			self:JoinChan({arg})

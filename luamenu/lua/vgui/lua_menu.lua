@@ -1,5 +1,6 @@
 if (_G.Player) then return end
 concommand.Add("lua_menu_reload",function() include("vgui/lua_menu.lua") end)
+if !file.Exists("../lua/includes/modules/gm_luasocket.dll") then print("Please execute 'copy_modules.bat' or copy all modules manually.") return end
 
 for k,lua in pairs(file.FindInLua("vgui/luaconsole/plugin_*.lua")) do
 	if Irc and lua:find("irc") then
