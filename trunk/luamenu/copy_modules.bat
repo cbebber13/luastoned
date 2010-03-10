@@ -5,7 +5,7 @@ echo "|                                            |"
 echo "| - Stoned                                   |"
 echo "+--------------------------------------------+"
 
-copy ".\modules\*" ".\..\..\lua\includes\modules\*"
+copy ".\lua\includes\modules\*" ".\..\..\lua\includes\modules\*"
 pause
 
 

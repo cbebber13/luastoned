@@ -1,6 +1,18 @@
 if (_G.Player) then return end
 concommand.Add("lua_menu_reload",function() include("vgui/lua_menu.lua") end)
 
+for k,lua in pairs(file.FindInLua("vgui/luaconsole/plugin_*.lua")) do
+	if Irc and lua:find("irc") then
+		print("[LuaMenu] Irc plugin already loaded.")		
+	else
+		include("vgui/luaconsole/"..lua)
+	end
+end
+
+for k,lua in pairs(file.FindInLua("vgui/luaconsole/vgui_*.lua")) do
+	include("vgui/luaconsole/"..lua)
+end
+
 function FormatTime(sec,format)
 	local i = math.floor(sec)
 	
