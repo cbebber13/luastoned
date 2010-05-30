@@ -3,7 +3,7 @@
 	"name"		"LuaMenu"
 	"version"	"SVN"
 	"up_date"	""
-	"author_name"	"Stoned"
+	"author_name"	"LuaStoned (the-stone)"
 	"author_url"	""
 	
 	"info"		"Adds functionallity to the menu env"
