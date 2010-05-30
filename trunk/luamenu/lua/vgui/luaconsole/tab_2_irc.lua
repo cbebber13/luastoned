@@ -28,13 +28,13 @@ function PANEL:Init()
 			Irc:Format(self:GetValue())
 		else
 			Irc:Connect()
-			hook.Call("IrcText",nil,"Currently connecting",Irc.Hosts[1],"")
+			hook.Call("IrcText",nil,"Currently connecting",Irc.Host,"")
 		end
 		self:SetText("")
 		self:RequestFocus()
 	end
 	
-	function GetIrc()
+	function IrcPanel()
 		return self
 	end
 	
@@ -44,10 +44,6 @@ function PANEL:Init()
 		local str = self:GetParent().Input:GetValue()
 		self:GetParent().Input:SetText("")
 		self:GetParent().Input:RequestFocus()
-	end
-	
-	local function ConsoleLineDblClicked(pnl)
-		print(pnl.FullText)
 	end
 	
 	hook.Add("IrcText","Shoop",function(name,text,chan)
