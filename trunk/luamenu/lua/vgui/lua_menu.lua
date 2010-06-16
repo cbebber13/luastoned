@@ -15,6 +15,23 @@ for k,lua in pairs(file.FindInLua("vgui/luaconsole/vgui_*.lua")) do
 	include("vgui/luaconsole/"..lua)
 end
 
+function SetMenuVar(str,data)
+	str = str:gsub("[^%w_]+","")
+	if type(data) ~= "string" then
+		print("[MenuVar] Tried to pass invalid data type ("..type(data)..")")
+		return
+	end
+	file.Write("luamenu/menuvar/"..str..".txt",data)
+end
+
+function GetMenuVar(str)
+	str = str:gsub("[^%w_]+","")
+	if file.Exists("luamenu/menuvar/"..str..".txt") then
+		return file.Read("luamenu/menuvar/"..str..".txt")
+	end
+	return nil
+end
+
 function FormatTime(sec,format)
 	local i = math.floor(sec)
 	
