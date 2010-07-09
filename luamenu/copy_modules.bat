@@ -17,6 +17,7 @@ echo.
 
 copy ".\lua\includes\modules\*" ".\..\..\lua\includes\modules\*"
 copy ".\lua\vgui\lua_menu.lua*" ".\..\..\lua\vgui\*"
+copy ".\lua\vgui\luamenu\*" ".\..\..\lua\vgui\luamenu\*"
 pause
 
 
