@@ -4,7 +4,7 @@
 	"version"	"SVN"
 	"up_date"	""
 	"author_name"	"LuaStoned (the-stone)"
-	"author_url"	""
+	"author_url"	"http://luastoned.com"
 	
 	"info"		"Adds functionallity to the menu env"
 
