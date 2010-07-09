@@ -5,6 +5,33 @@ require("luamenu")
 require("oosocks")
 RunString = MenuRunString
 
+ConsoleQueue = {}
+ConsoleIgnore = { -- C_BaseAnimating::SequenceDuration( 2047 ) out of range
+	"C_BaseAnimating",
+	--"ScriptEnforce:",
+	"SetConVar",
+	"can't be found on disk",
+	"not found",
+	"Loading",
+	"Material:",
+}
+
+hook.Add("RawConsole","LuaMenu - ConsoleHook",function(str,clr)
+	for k,ignore in pairs(ConsoleIgnore) do
+		if str:find(ignore) then
+			return
+		end
+	end
+
+	table.insert(ConsoleQueue,clr)
+	table.insert(ConsoleQueue,str)
+	if string.byte(str:sub(-1,-1)) == 10 then -- new line
+		hook.Call("ConsoleText",nil,ConsoleQueue)
+		ConsoleQueue = {}
+	end
+end)
+
+
 for k,lua in pairs(file.FindInLua("vgui/luaconsole/plugin_*.lua")) do
 	if Irc and lua:find("irc") then
 		print("[LuaMenu] Irc plugin already loaded.")		
