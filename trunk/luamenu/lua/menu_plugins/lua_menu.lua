@@ -197,3 +197,8 @@ function LuaMenu:Toggle()
 	end
 end
 concommand.Add("lua_menu",function() LuaMenu:Toggle() end)
+
+hook.Add("Think","LuaMenu - Init",function()
+	LuaMenu:Toggle()
+	hook.Remove("Think","LuaMenu - Init")
+end)
