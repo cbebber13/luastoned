@@ -1,9 +1,13 @@
 if (_G.Player) then return end
-concommand.Add("lua_menu_reload",function() include("menu_plugins/lua_menu.lua") end)
+concommand.Add("lua_menu_reload",function()
+	if LuaMenu and LuaMenu.Frame then LuaMenu.Frame:Close() end
+	include("menu_plugins/lua_menu.lua")
+end)
 if (not markup) then include("includes/modules/markup.lua") end
 if !file.Exists("../lua/includes/modules/gmcl_luamenu.dll") then print("Please execute 'install_luamenu.bat' or copy all files manually.") return end
 require("luamenu")
 require("oosocks")
+require("glon")
 
 include("vgui/DTooltip.lua") -- garry's restrictions, derp
 
@@ -106,15 +110,19 @@ function FormatTime(sec,format)
 	return string.format(format,h,m,s,ms)
 end
 
+function LoadSettings()
+	return glon.decode(file.Read("luamenu/settings.txt"))
+end
+
+function SaveSettings()
+	file.Write("luamenu/settings.txt",glon.encode(LuaMenu.Settings))
+end
+
 LuaMenu = {
 	Version = 2.0,
 	IsOpen = false,
 	Console = {["Text"] = ""},
-	Settings = {
-		["Skin"] = "Default",
-		["Title"] = "LuaMenu - running since %time% %size%",
-		["AutoOpen"] = true,
-	},
+	Settings = LoadSettings(),
 	Skins = {
 		["Default"] = {
 			func = function(frame) LuaMenu.Paint(frame) end,
@@ -220,6 +228,8 @@ end
 concommand.Add("lua_menu",function() LuaMenu:Toggle() end)
 
 hook.Add("Think","LuaMenu - Init",function()
-	LuaMenu:Toggle()
+	if LuaMenu.Settings.AutoOpen == true then
+		LuaMenu:Toggle()
+	end
 	hook.Remove("Think","LuaMenu - Init")
 end)
