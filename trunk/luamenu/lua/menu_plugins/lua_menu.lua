@@ -5,6 +5,38 @@ if !file.Exists("../lua/includes/modules/gmcl_luamenu.dll") then print("Please e
 require("luamenu")
 require("oosocks")
 
+include("vgui/DTooltip.lua") -- garry's restrictions, derp
+
+/*	what garry loads in the menu, we might need more as seen above
+
+	vgui/DFrame.lua
+	vgui/DButton.lua
+	vgui/DSysButton.lua
+	vgui/DLabel.lua
+	vgui/DImage.lua
+	vgui/DPanel.lua
+	vgui/DPropertySheet.lua
+	vgui/DHorizontalScroller.lua
+	vgui/DPanelList.lua
+	vgui/DVScrollBar.lua
+	vgui/DScrollBarGrip.lua
+	vgui/DCategoryCollapse.lua
+	vgui/DListView_Line.lua
+	vgui/DListView.lua
+	vgui/DListView_Column.lua
+	vgui/DForm.lua
+	vgui/DMultiChoice.lua
+	vgui/DTextEntry.lua
+	vgui/DCheckBox.lua
+	vgui/DNumberWang.lua
+	vgui/DMenu.lua
+	vgui/DMenuOption.lua
+	vgui/DColumnSheet.lua
+	vgui/DScrollPanel.lua
+	vgui/DGrid.lua
+	vgui/DLabelURL.lua
+*/
+
 RunString = MenuRunString
 
 ConsoleQueue = {}
