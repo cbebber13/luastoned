@@ -1,4 +1,6 @@
 To properly install all functionality of this addon:
-- copy garrysmod/addons/<this addon>/lua/includes/modules/*.dll files to garrysmod/lua/includes/modules/
 
-OR YOU CAN JUST RUN copy_modules.bat and not be stupid
+
+- copy garrysmod/addons/<this addon>/lua/* to garrysmod/lua/*
+
+OR YOU CAN JUST RUN install_luamenu.bat and not be stupid
