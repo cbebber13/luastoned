@@ -16,6 +16,9 @@ function PANEL:Init()
 		for name,str in string.gmatch(c,"([%w_]-)@([%w%s%p]-)~") do
 			if !table.HasValue(self.ChatData,str) then
 				self.Output:AddLine(name,str:gsub("\n"," "))
+				if self.Output.VBar:GetScroll() != self.Output.VBar.CanvasSize then -- thanks to tobba
+					timer.Simple(0.01,function(self) self.Output.VBar:SetScroll(self.Output.VBar.CanvasSize) end,self)
+				end
 				table.insert(self.ChatData,str)
 			end
 		end

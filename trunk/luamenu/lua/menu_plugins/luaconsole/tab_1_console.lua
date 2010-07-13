@@ -65,7 +65,7 @@ function PANEL:Init()
 	end
 	
 	function ConPrint(...)
-		local pnl = LuaConsole().Output
+		local pnl = self.Output
 		local line = pnl:AddLine(tostring(os.date("%I:%M:%S")),"")
 		local line_paint = line.Paint
 		local line_markup = {}
@@ -96,10 +96,7 @@ function PANEL:Init()
 			
 		--pnl.FullText = str
 		pnl:ClearSelection()
-		timer.Simple(0.01,function()
-			local pnl = LuaConsole().Output
-			pnl.VBar:SetScroll(math.huge)
-		end)
+		timer.Simple(0.01,function(self) self.Output.VBar:SetScroll(self.Output.VBar.CanvasSize) end,self)
 	end
 	
 	function LuaConsole()
