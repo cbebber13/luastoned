@@ -111,6 +111,7 @@ function FormatTime(sec,format)
 end
 
 function LoadSettings()
+	if !file.Exists("luamenu/settings.txt") then return {AutoOpen = false,Skin = "Default",Title = "LuaMenu"} end
 	return glon.decode(file.Read("luamenu/settings.txt"))
 end
 
