@@ -17,6 +17,7 @@ function PANEL:Init()
 	self.Skin:AddChoice("Steam")
 	self.Skin.OnSelect = function(panel,num,str)
 		LuaMenu.Settings.Skin = str
+		SaveSettings()
 	end
 	self.Skin:SetText(LuaMenu.Settings.Skin)
 	
@@ -30,6 +31,7 @@ function PANEL:Init()
 	self.Title:RequestFocus()
 	self.Title.OnEnter = function(self)
 		LuaMenu.Settings.Title = self:GetValue()
+		SaveSettings()
 	end
 	self.Title:SetPos(5,75)
 	self.Title:SetWide(500)
