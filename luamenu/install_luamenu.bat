@@ -44,17 +44,13 @@ if not exist ".\..\..\lua\menu_plugins\backup" (
 )
 
 echo.
-echo.
-echo.- I backed following files up:
-echo.
+echo.- I saved following files:
 echo.
 
 copy ".\..\..\lua\menu_plugins\luaconsole\*" ".\..\..\lua\menu_plugins\backup\*"
 
 echo.
-echo.
 echo.- I moved following files:
-echo.
 echo.
 
 copy ".\lua\includes\modules\*" ".\..\..\lua\includes\modules\*"
