@@ -36,11 +36,11 @@ if not exist ".\..\..\lua\menu_plugins\luaconsole" (
 )
 
 
-if not exist ".\..\..\lua\menu_plugins_backup" (
-	mkdir ".\..\..\lua\menu_plugins_backup"
-	echo.- Folder /lua/menu_plugins_backup/ was created
+if not exist ".\..\..\lua\menu_plugins\backup" (
+	mkdir ".\..\..\lua\menu_plugins\backup"
+	echo.- Folder /lua/menu_plugins/backup/ was created
 ) else (
-	echo.- Folder /lua/menu_plugins_backup/ already exists
+	echo.- Folder /lua/menu_plugins/backup/ already exists
 )
 
 echo.
@@ -49,7 +49,7 @@ echo.- I backed following files up:
 echo.
 echo.
 
-copy ".\..\..\lua\menu_plugins\luaconsole\*" ".\..\..\lua\menu_plugins_backup\*"
+copy ".\..\..\lua\menu_plugins\luaconsole\*" ".\..\..\lua\menu_plugins\backup\*"
 
 echo.
 echo.
