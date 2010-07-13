@@ -112,6 +112,8 @@ LuaMenu = {
 	Console = {["Text"] = ""},
 	Settings = {
 		["Skin"] = "Default",
+		["Title"] = "LuaMenu - running since %time% %size%",
+		["AutoOpen"] = true,
 	},
 	Skins = {
 		["Default"] = {
@@ -127,6 +129,7 @@ LuaMenu = {
 			info = "Steam skin by LuaStoned",
 		},
 	},
+	TmpTitle = "", -- don't spam locals
 }
 
 function LuaMenu:Init()
@@ -186,7 +189,10 @@ function LuaMenu:Init()
 
 	hook.Add("Think","LuaMenu - Title Time",function()
 		if !LuaMenu.Frame then return end
-		LuaMenu.Frame:SetTitle("LuaMenu - running since "..FormatTime(CurTime(),"%02i:%02i:%02i").." ("..LuaMenu.Frame:GetWide().." x "..LuaMenu.Frame:GetTall()..")")
+		LuaMenu.TmpTitle = LuaMenu.Settings.Title:gsub("%%time%%",FormatTime(CurTime(),"%02i:%02i:%02i"))
+		LuaMenu.TmpTitle = LuaMenu.TmpTitle:gsub("%%size%%","("..LuaMenu.Frame:GetWide().." x "..LuaMenu.Frame:GetTall()..")")
+		
+		LuaMenu.Frame:SetTitle(LuaMenu.TmpTitle)
 	end)
 	concommand.Add("lua_menu_close",function() LuaMenu.Frame:Close() end)
 	

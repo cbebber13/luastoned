@@ -13,14 +13,26 @@ function PANEL:Init()
 	self.SkinHelp:SizeToContents()
 	
 	self.Skin = vgui.Create("DMultiChoice",self)
-	self.Skin:SetPos(5,25)
-	self.Skin:SetSize(100,20)
 	self.Skin:AddChoice("Default")
 	self.Skin:AddChoice("Steam")
 	self.Skin.OnSelect = function(panel,num,str)
 		LuaMenu.Settings.Skin = str
 	end
 	self.Skin:SetText(LuaMenu.Settings.Skin)
+	
+	self.TitleHelp = vgui.Create("DLabel",self)
+	self.TitleHelp:SetPos(5,55)
+	self.TitleHelp:SetText("Set your title (%time%, %size%)")
+	self.TitleHelp:SizeToContents()
+	
+	self.Title = vgui.Create("DTextEntry",self)
+	self.Title:SetText(LuaMenu.Settings.Title)
+	self.Title:RequestFocus()
+	self.Title.OnEnter = function(self)
+		LuaMenu.Settings.Title = self:GetValue()
+	end
+	self.Title:SetPos(5,75)
+	self.Title:SetWide(500)
 
 	function GetSettings()
 		return self
@@ -29,6 +41,8 @@ end
 
 function PANEL:PerformLayout()
 	self:StretchToParent(4,27,4,4)
+	self.Skin:StretchToParent(5,25,5,self:GetTall() - 45)
+	self.Title:StretchToParent(5,75,5,self:GetTall() - 95)
 end
 
 function PANEL:Paint()
