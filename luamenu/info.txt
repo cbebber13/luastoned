@@ -1,12 +1,13 @@
 "AddonInfo"
 {
 	"name"		"LuaMenu"
-	"version"	"SVN"
-	"up_date"	""
+	"version"	"2.0"
+	"up_date"	"SVN"
 	"author_name"	"LuaStoned (the-stone)"
 	"author_url"	"http://luastoned.com"
+	"author_email"	"me@luastoned.com"
 	
-	"info"		"Adds functionallity to the menu env"
+	"info"		"This addon adds various functions and frames to the menu env. It'll allow you to code here with ease and run your own scripts."
 
 	//
 	// !!!!! This is important !!!!!
