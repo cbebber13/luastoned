@@ -1,7 +1,7 @@
 if (_G.Player) then return end
 concommand.Add("lua_menu_reload",function() include("menu_plugins/lua_menu.lua") end)
 if (not markup) then include("includes/modules/markup.lua") end
-if !file.Exists("../lua/includes/modules/gmcl_luamenu.dll") then print("Please execute 'copy_modules.bat' or copy all modules manually.") return end
+if !file.Exists("../lua/includes/modules/gmcl_luamenu.dll") then print("Please execute 'install_luamenu.bat' or copy all files manually.") return end
 require("luamenu")
 require("oosocks")
 
@@ -107,9 +107,26 @@ function FormatTime(sec,format)
 end
 
 LuaMenu = {
-	Version = 1.0,
+	Version = 2.0,
 	IsOpen = false,
 	Console = {["Text"] = ""},
+	Settings = {
+		["Skin"] = "Default",
+	},
+	Skins = {
+		["Default"] = {
+			func = function(frame) LuaMenu.Paint(frame) end,
+			info = "The basic derma skin",
+		},
+		["Steam"] = {
+			func = function(frame)
+				draw.RoundedBox(4,0,0,frame:GetWide(),frame:GetTall(),Color(104,106,101,255))
+				draw.RoundedBox(4,1,1,frame:GetWide()-2,frame:GetTall()-2,Color(70,70,70,255))
+				draw.RoundedBox(4,0,0,frame:GetWide(),25,Color(90,106,80,255))
+			end,
+			info = "Steam skin by LuaStoned",
+		},
+	},
 }
 
 function LuaMenu:Init()
@@ -142,11 +159,9 @@ function LuaMenu:Init()
 		LuaMenu.PropertySheet:PerformLayout()
 		self:OldPerformLayout(self)
 	end	
-	self.Frame.OldPaint = self.Frame.Paint
-	self.Frame.Paint = function(self)
-		draw.RoundedBox(4,0,0,self:GetWide(),self:GetTall(),Color(104,106,101,255))
-		draw.RoundedBox(4,1,1,self:GetWide()-2,self:GetTall()-2,Color(70,70,70,255))
-		draw.RoundedBox(4,0,0,self:GetWide(),25,Color(90,106,80,255))
+	self.Paint = self.Frame.Paint
+	self.Frame.Paint = function(frame)
+		pcall(self.Skins[self.Settings.Skin].func or self.Paint,frame)
 	end
 	
 	self.PropertySheet = vgui.Create("DPropertySheet")
