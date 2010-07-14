@@ -1,18 +1,68 @@
-if (_G.Player) then return end
-concommand.Add("lua_menu_reload",function()
+/*************************************************************************\
+
+	LuaMenu @ http://luastoned.googlecode.com/svn/trunk/luamenu/
+	Version: 2.1
+	Date: 14.07.2010
+	Autor: LuaStoned (the-stone/stoned)
+
+	Contributors:
+		Deco, Gbps, DrogenViech, Tobba, ...
+
+
+\*************************************************************************/
+
+LuaMenu = {
+	Version = 2.1,
+	IsOpen = false,
+	Panel = {},
+	Console = {["Text"] = ""},
+	Settings = {},
+	Skins = {
+		["Default"] = {
+			func = function(frame) LuaMenu.Paint(frame) end,
+			info = "The basic derma skin",
+		},
+		["Steam"] = {
+			func = function(frame)
+				draw.RoundedBox(4,0,0,frame:GetWide(),frame:GetTall(),Color(104,106,101,255))
+				draw.RoundedBox(4,1,1,frame:GetWide()-2,frame:GetTall()-2,Color(70,70,70,255))
+				draw.RoundedBox(4,0,0,frame:GetWide(),25,Color(90,106,80,255))
+			end,
+			info = "Steam skin by LuaStoned",
+		},
+	},
+	TmpTitle = "", -- don't spam locals
+	Info = {
+		"Did you find a bug? Let me know and post the issue in the LuaMenu thread.",
+		"Did you know that LuaMenu is still a work-in-progress? Give some ideas and we'll add them.",
+		"Did you find a bug? Let me know and post the issue in the LuaMenu thread.",
+		"If you don't like this popups, turn them off in the settings tab.",
+		"_G.arry = nil",
+	},
+}
+
+function LuaMenu:Reload(str) -- Add a basic reload command, something might break >:O
+	if str then -- it's a tab / plugin
+		include("menu_plugins/luaconsole/"..str..".lua")
+		return
+	end
+		
 	if LuaMenu and LuaMenu.Frame then LuaMenu.Frame:Close() end
 	include("menu_plugins/lua_menu.lua")
-end)
-if (not markup) then include("includes/modules/markup.lua") end
-if !file.Exists("../lua/includes/modules/gmcl_luamenu.dll") then print("Please execute 'install_luamenu.bat' or copy all files manually.") return end
-require("luamenu")
-require("oosocks")
-require("glon")
+end
+concommand.Add("lua_menu_reload",function(p,c,a) LuaMenu:Reload(a[1]) end)
 
+-- Check if it was installed right
+if !file.Exists("../lua/includes/modules/gmcl_luamenu.dll") then print("Please execute 'install_luamenu.bat' or copy all files manually.") return end
+
+--------------------------------------------------
+-- Add libraries we might need
+--------------------------------------------------
+
+if (not markup) then include("includes/modules/markup.lua") end
 include("vgui/DTooltip.lua") -- garry's restrictions, derp
 
 /*	what garry loads in the menu, we might need more as seen above
-
 	vgui/DFrame.lua
 	vgui/DButton.lua
 	vgui/DSysButton.lua
@@ -41,46 +91,52 @@ include("vgui/DTooltip.lua") -- garry's restrictions, derp
 	vgui/DLabelURL.lua
 */
 
+--------------------------------------------------
+-- require useful modules
+--------------------------------------------------
+
+require("luamenu")
+require("oosocks")
+require("glon")
+require("json")
+
 RunString = MenuRunString
 
-ConsoleQueue = {}
-ConsoleIgnore = { -- C_BaseAnimating::SequenceDuration( 2047 ) out of range
-	"C_BaseAnimating",
-	--"ScriptEnforce:",
-	"SetConVar",
-	"can't be found on disk",
-	"not found",
-	"Loading",
-	"Material:",
+--------------------------------------------------
+-- Hook LuaConsole
+--------------------------------------------------
+
+local Console = {
+	Queue = {},
+	Ignore = { -- stuff we don't want to spam our luaconsole with
+		"C_BaseAnimating", -- C_BaseAnimating::SequenceDuration( 2047 ) out of range
+		--"ScriptEnforce:",
+		"SetConVar",
+		"can't be found on disk",
+		"not found",
+		"Loading",
+		"Material:",
+	},
 }
 
 hook.Add("RawConsole","LuaMenu - ConsoleHook",function(str,clr)
-	for k,ignore in pairs(ConsoleIgnore) do
+	for k,ignore in pairs(Console.Ignore) do
 		if str:find(ignore) then
 			return
 		end
 	end
 
-	table.insert(ConsoleQueue,clr)
-	table.insert(ConsoleQueue,str)
+	table.insert(Console.Queue,clr)
+	table.insert(Console.Queue,str)
 	if string.byte(str:sub(-1,-1)) == 10 then -- new line
-		hook.Call("ConsoleText",nil,ConsoleQueue)
-		ConsoleQueue = {}
+		hook.Call("ConsoleText",nil,Console.Queue)
+		Console.Queue = {}
 	end
 end)
 
-
-for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/plugin_*.lua")) do
-	if Irc and lua:find("irc") then
-		print("[LuaMenu] Irc plugin already loaded.")		
-	else
-		include("menu_plugins/luaconsole/"..lua)
-	end
-end
-
-for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/vgui_*.lua")) do
-	include("menu_plugins/luaconsole/"..lua)
-end
+--------------------------------------------------
+-- Basic variable saving/loading
+--------------------------------------------------
 
 function SetMenuVar(str,data)
 	str = str:gsub("[^%w_]+","")
@@ -99,6 +155,73 @@ function GetMenuVar(str)
 	return nil
 end
 
+function LoadSettings()
+	if !file.Exists("luamenu/settings.txt") then 
+		LuaMenu.Settings = {AutoOpen = false,Info=true,Skin = "Default",Title = "LuaMenu",}
+		return
+	end
+	LuaMenu.Settings = glon.decode(file.Read("luamenu/settings.txt"))
+end
+LoadSettings()
+
+function SaveSettings()
+	file.Write("luamenu/settings.txt",glon.encode(LuaMenu.Settings))
+end
+
+--------------------------------------------------
+-- Create Fonts for LuaMenu and sub plugins
+--------------------------------------------------
+
+--rface.CreateFont("Base font"	,size	,width	,bold	,italic	,"Generic name")
+surface.CreateFont("Default"	,12		,700	,false	,false	,"Default12B")
+surface.CreateFont("Default"	,13		,700	,false	,false	,"Default13B")
+surface.CreateFont("Default"	,14		,700	,true	,false	,"Default14")
+
+--------------------------------------------------
+-- Helper functions
+--------------------------------------------------
+
+function table.Print(tbl,nr,done)
+	tbl = tbl or {}
+	done = done or {}
+	nr = nr or 0
+	local maxlen = 0
+	for k,_ in pairs(tbl) do
+		if tostring(k):len() > maxlen then
+			maxlen = tostring(k):len()
+		end
+	end
+		
+	for key,value in pairs(tbl) do
+		if type (value) == "table" and not done[value] then
+			done[value] = true
+			print(string.rep("\t",nr)..tostring(key)..":")
+			table.Print(value,nr + 1,done)
+		else
+			local keylen = tostring(key):len()
+			local add = math.floor((maxlen - keylen)) --/7
+			print(string.rep("\t",nr)..tostring(key)..string.rep(" ",add).." = "..tostring(value))
+		end
+	end
+end
+
+PrintTable = table.Print
+
+function NumberSuffix(n)
+	local last_char = string.sub(tostring(n), -1)
+	if string.sub(tostring(n), -2, -2) == "1" then
+		return "th"
+	elseif last_char == "1" then
+		return "st"
+	elseif last_char == "2" then
+		return "nd"
+	elseif last_char == "3" then
+		return "rd"
+	else
+		return "th"
+	end
+end
+
 function FormatTime(sec,format)
 	local i = math.floor(sec)
 	
@@ -110,36 +233,67 @@ function FormatTime(sec,format)
 	return string.format(format,h,m,s,ms)
 end
 
-function LoadSettings()
-	if !file.Exists("luamenu/settings.txt") then return {AutoOpen = false,Skin = "Default",Title = "LuaMenu"} end
-	return glon.decode(file.Read("luamenu/settings.txt"))
+function LerpVector(num,vec1,vec2)
+	local vec = Vector()
+	vec.x = Lerp(num,vec1.x,vec2.x)
+	vec.y = Lerp(num,vec1.y,vec2.y)
+	vec.z = Lerp(num,vec1.z,vec2.z)
+	return vec
 end
 
-function SaveSettings()
-	file.Write("luamenu/settings.txt",glon.encode(LuaMenu.Settings))
-end
-
-LuaMenu = {
-	Version = 2.0,
-	IsOpen = false,
-	Console = {["Text"] = ""},
-	Settings = LoadSettings(),
-	Skins = {
-		["Default"] = {
-			func = function(frame) LuaMenu.Paint(frame) end,
-			info = "The basic derma skin",
-		},
-		["Steam"] = {
-			func = function(frame)
-				draw.RoundedBox(4,0,0,frame:GetWide(),frame:GetTall(),Color(104,106,101,255))
-				draw.RoundedBox(4,1,1,frame:GetWide()-2,frame:GetTall()-2,Color(70,70,70,255))
-				draw.RoundedBox(4,0,0,frame:GetWide(),25,Color(90,106,80,255))
-			end,
-			info = "Steam skin by LuaStoned",
-		},
-	},
-	TmpTitle = "", -- don't spam locals
+DPopup = {
+	Count = 0,
+	Popups = {},
 }
+
+function Popup(head,txt,dur,x,y,hclr,tclr)
+	DPopup.Count = DPopup.Count + 1
+	local panel = vgui.Create("popup")
+	panel:Popup(head or "Head",txt or "Txt",dur or 5,x or 240,y or 92,hclr or Color(216,222,211),tclr or Color(255,255,255))
+	panel:SetSlot(DPopup.Count)
+	table.insert(DPopup.Popups,panel)
+	timer.Simple(dur or 5,function()
+		DPopup.Count = DPopup.Count - 1
+		for k,pop in pairs(DPopup.Popups) do
+			pop:SetSlot(pop:GetSlot() - 1)
+		end		
+	end)
+end
+
+--------------------------------------------------
+-- Info, spam the client with popups :D
+--------------------------------------------------
+
+timer.Create("LuaMenu - Info",60,5,function()
+	if LuaMenu.Settings.Info == true then
+		Popup("LuaMenu Information",LuaMenu.Info[math.random(#LuaMenu.Info)])
+	end
+end)
+
+Popup("LuaMenu","LuaMenu has successfully loaded, enjoy this addon.")
+
+--------------------------------------------------
+-- Load plugins based on their prefix
+--------------------------------------------------
+
+function LuaMenu:Load(arg)
+	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/plugin_*.lua")) do
+		if Irc and lua:find("irc") then
+			print("[LuaMenu] Irc plugin already loaded.")		
+		else
+			include("menu_plugins/luaconsole/"..lua)
+		end
+	end
+
+	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/vgui_*.lua")) do
+		include("menu_plugins/luaconsole/"..lua)
+	end
+end
+LuaMenu:Load()
+
+--------------------------------------------------
+-- LuaMenu Init, create the frame, don't show yet
+--------------------------------------------------
 
 function LuaMenu:Init()
 	self.Frame = vgui.Create("DFrame")
@@ -180,6 +334,8 @@ function LuaMenu:Init()
  	self.PropertySheet:SetParent(self.Frame)
  	self.PropertySheet:SetPos(5,30)
  	self.PropertySheet:SetSize(self.Frame:GetWide() - 10,self.Frame:GetTall() - 35)
+	
+	-- register function needs to be rewritten, does not catch all errors and bugs luamenu sometimes
 	
 	for k,tab in pairs(file.FindInLua("menu_plugins/luaconsole/tab_*.lua")) do
 		local ok,panel = pcall(vgui.RegisterFile,"menu_plugins/luaconsole/"..tab)

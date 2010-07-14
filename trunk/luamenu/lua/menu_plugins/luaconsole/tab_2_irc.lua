@@ -34,10 +34,6 @@ function PANEL:Init()
 		self:RequestFocus()
 	end
 	
-	function IrcPanel()
-		return self
-	end
-	
 	self.Submit = vgui.Create("DButton",self)
 	self.Submit:SetText("Submit")
 	self.Submit.DoClick = function(self)
@@ -47,9 +43,11 @@ function PANEL:Init()
 	end
 	
 	hook.Add("IrcText","Shoop",function(name,text,chan)
-		local pnl = GetIrc().Output:AddLine(tostring(os.date("%I:%M:%S")),name..": "..text)
+		local pnl = LuaMenu.Irc.Output:AddLine(tostring(os.date("%I:%M:%S")),name..": "..text)
 		pnl.FullText = name..": "..text
 	end)
+	
+	LuaMenu.Panel.Irc = self
 end
 
 function PANEL:PerformLayout()
