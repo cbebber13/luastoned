@@ -60,7 +60,8 @@ if !file.Exists("../lua/includes/modules/gmcl_luamenu.dll") then print("Please e
 --------------------------------------------------
 
 if (not markup) then include("includes/modules/markup.lua") end
-include("vgui/DTooltip.lua") -- garry's restrictions, derp
+include("vgui/DTooltip.lua")
+include("vgui/DImageButton.lua")
 
 /*	what garry loads in the menu, we might need more as seen above
 	vgui/DFrame.lua
@@ -157,7 +158,7 @@ end
 
 function LoadSettings()
 	if !file.Exists("luamenu/settings.txt") then 
-		LuaMenu.Settings = {AutoOpen = false,Info=true,Skin = "Default",Title = "LuaMenu",}
+		LuaMenu.Settings = {AutoOpen = false,Info=false,Skin = "Default",Title = "LuaMenu",}
 		return
 	end
 	LuaMenu.Settings = glon.decode(file.Read("luamenu/settings.txt"))
@@ -167,6 +168,25 @@ LoadSettings()
 function SaveSettings()
 	file.Write("luamenu/settings.txt",glon.encode(LuaMenu.Settings))
 end
+
+--------------------------------------------------
+-- Load plugins based on their prefix
+--------------------------------------------------
+
+function LuaMenu:Load(arg)
+	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/plugin_*.lua")) do
+		if Irc and lua:find("irc") then
+			print("[LuaMenu] Irc plugin already loaded.")		
+		else
+			include("menu_plugins/luaconsole/"..lua)
+		end
+	end
+
+	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/vgui_*.lua")) do
+		include("menu_plugins/luaconsole/"..lua)
+	end
+end
+LuaMenu:Load()
 
 --------------------------------------------------
 -- Create Fonts for LuaMenu and sub plugins
@@ -260,6 +280,9 @@ function Popup(head,txt,dur,x,y,hclr,tclr)
 	end)
 end
 
+--lua: Popup("Popup Title","Popup content, can be pretty long actually. Automatically creates newlines etc...",10,nil,nil,Color(100,255,100))
+--lua: Popup("LuaMenu Chat","Stoned: Chat notifications are coming soon, kewl eh?",10,nil,nil,Color(255,255,100))
+
 --------------------------------------------------
 -- Info, spam the client with popups :D
 --------------------------------------------------
@@ -271,25 +294,6 @@ timer.Create("LuaMenu - Info",60,5,function()
 end)
 
 Popup("LuaMenu","LuaMenu has successfully loaded, enjoy this addon.")
-
---------------------------------------------------
--- Load plugins based on their prefix
---------------------------------------------------
-
-function LuaMenu:Load(arg)
-	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/plugin_*.lua")) do
-		if Irc and lua:find("irc") then
-			print("[LuaMenu] Irc plugin already loaded.")		
-		else
-			include("menu_plugins/luaconsole/"..lua)
-		end
-	end
-
-	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/vgui_*.lua")) do
-		include("menu_plugins/luaconsole/"..lua)
-	end
-end
-LuaMenu:Load()
 
 --------------------------------------------------
 -- LuaMenu Init, create the frame, don't show yet
