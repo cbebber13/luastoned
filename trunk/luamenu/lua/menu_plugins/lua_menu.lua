@@ -201,6 +201,11 @@ surface.CreateFont("Default"	,14		,700	,true	,false	,"Default14")
 -- Helper functions
 --------------------------------------------------
 
+local ExtraTabs = {} -- tobba DEV
+function LuaMenu.AddTab(...)
+	table.insert(ExtraTabs,{...})
+end
+
 function table.Print(tbl,nr,done)
 	tbl = tbl or {}
 	done = done or {}
@@ -269,7 +274,7 @@ DPopup = {
 function Popup(head,txt,dur,x,y,hclr,tclr)
 	DPopup.Count = DPopup.Count + 1
 	local panel = vgui.Create("popup")
-	panel:Popup(head or "Head",txt or "Txt",dur or 5,x or 240,y or 92,hclr or Color(216,222,211),tclr or Color(255,255,255))
+	panel:Popup(head or "",txt or "",dur or 5,x or 240,y or 92,hclr or Color(216,222,211),tclr or Color(255,255,255))
 	panel:SetSlot(DPopup.Count)
 	table.insert(DPopup.Popups,panel)
 	timer.Simple(dur or 5,function()
@@ -354,6 +359,10 @@ function LuaMenu:Init()
 		else
 			ErrorNoHalt("LuaMenu panel '"..tab.."' failed : '"..tostring(panel).."'\n")
 		end
+	end
+
+	for k,v in pairs(ExtraTabs) do
+		self.PropertySheet:AddSheet(unpack(v))
 	end
 
 	hook.Add("Think","LuaMenu - Title Time",function()
