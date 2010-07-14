@@ -11,15 +11,18 @@ function PANEL:Init()
 	self:SetMouseInputEnabled(true)
 	self:SetKeyboardInputEnabled(true)
 	
-	self.ChatData = {}	
 	local function Update(c,s)
+		local i = 31
 		for name,str in string.gmatch(c,"([%w_]-)@([%w%s%p]-)~") do
-			if !table.HasValue(self.ChatData,str) then
+			i = i - 1
+			if self.Output.VBar:GetScroll() == self.Output.VBar.CanvasSize then -- thanks to tobba
+				timer.Simple(0,function(self) self.Output.VBar:SetScroll(self.Output.VBar.CanvasSize) end,self)
+			end
+			if !self.Output:GetLines()[i] then
 				self.Output:AddLine(name,str:gsub("\n"," "))
-				if self.Output.VBar:GetScroll() != self.Output.VBar.CanvasSize then -- thanks to tobba
-					timer.Simple(0.01,function(self) self.Output.VBar:SetScroll(self.Output.VBar.CanvasSize) end,self)
-				end
-				table.insert(self.ChatData,str)
+			else
+				self.Output:GetLines()[i]:SetColumnText(1, name)
+				self.Output:GetLines()[i]:SetColumnText(2, str:gsub("\n"," "))
 			end
 		end
 	end
@@ -37,7 +40,9 @@ function PANEL:Init()
 		self:SetText("")
 		self:RequestFocus()
 		if str ~= "" and str ~= " " then
-			http.Get("http://luastoned.com/gmod/chat.php?name="..GetChat().UserName.."&str="..str:gsub(" ","+"),"",Update)
+			str = str:gsub("~","-")
+			str = str:gsub("@","[at]")
+			http.Get("http://gmod.luastoned.com/chat.php?name="..GetChat().UserName.."&str="..str:gsub(" ","+"),"",Update)
 		end
 	end
 	
@@ -49,8 +54,8 @@ function PANEL:Init()
 		local pnl = GetChat().Output:AddLine(name,str:gsub("\n"," "))
 	end)
 	
-	timer.Create("GlobalChatUpdate",30,0,function()
-		http.Get("http://luastoned.com/gmod/chat.php","",Update)
+	timer.Create("GlobalChatUpdate",10,0,function()
+		http.Get("http://gmod.luastoned.com/chat.php","",Update)
 	end)
 end
 
