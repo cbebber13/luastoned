@@ -46,10 +46,6 @@ function PANEL:Init()
 		end
 	end
 	
-	function GetChat()
-		return self
-	end
-	
 	hook.Add("GlobalChat","Shoop",function(name,str)
 		local pnl = GetChat().Output:AddLine(name,str:gsub("\n"," "))
 	end)
@@ -57,6 +53,7 @@ function PANEL:Init()
 	timer.Create("GlobalChatUpdate",10,0,function()
 		http.Get("http://gmod.luastoned.com/chat.php","",Update)
 	end)
+	LuaMenu.Panel.Chat = self
 end
 
 function PANEL:PerformLayout()

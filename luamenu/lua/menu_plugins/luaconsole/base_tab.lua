@@ -7,9 +7,7 @@ function PANEL:Init()
 	self:SetMouseInputEnabled(true)
 	self:SetKeyboardInputEnabled(true)
 
-	function GetBase()
-		return self
-	end
+	LuaMenu.Panel.Base = self
 end
 
 function PANEL:PerformLayout()

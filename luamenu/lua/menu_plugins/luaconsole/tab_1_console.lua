@@ -24,16 +24,18 @@ function PANEL:Init()
 		ConPrint(cmd)
 	end
 	
-	self.Output.OnRowRightClick = function(id,lineid,line)
+	/*self.Output.OnRowRightClick = function(id,lineid,line)
 		local menu = DermaMenu()
 		menu:AddOption("Copy to clipboard >",function()
+			print(line:GetValue(1))
+			print(line:GetValue(2))
 			SetClipboardText(line:GetValue(2))
 		end)
 		menu:AddOption("Copy to command line >",function()
 			self.Input:SetText(line:GetValue(2))
 		end)
 		menu:Open()
-	end
+	end*/
 	
 	self.Input = vgui.Create("DTextEntry",self)
 	self.Input:SetText("")
@@ -41,7 +43,11 @@ function PANEL:Init()
 	self.Input.OnEnter = function(self)
 	    surface.PlaySound("ambient/machines/keyboard"..math.random(6).."_clicks.wav")
 		local str = self:GetValue()
-		MenuCommand(str)
+		if str:sub(1,4) == "lua:" then
+			RunString(str:sub(5,-1))
+		else
+			MenuCommand(str)
+		end
 		ConPrint(Color(0,255,0),"> ",Color(255,255,255),str)
 		self:SetText("")
 		self:RequestFocus()
@@ -66,7 +72,7 @@ function PANEL:Init()
 	
 	function ConPrint(...)
 		local pnl = self.Output
-		local line = pnl:AddLine(tostring(os.date("%I:%M:%S")),"")
+		local line = pnl:AddLine(tostring(os.date("%I:%M:%S")),"") -- fix copy 2 clipboard!
 		local line_paint = line.Paint
 		local line_markup = {}
 		for k,obj in pairs({...}) do
@@ -99,9 +105,6 @@ function PANEL:Init()
 		timer.Simple(0.01,function(self) self.Output.VBar:SetScroll(self.Output.VBar.CanvasSize) end,self)
 	end
 	
-	function LuaConsole()
-		return self
-	end
 	local function ConsoleLineDblClicked(pnl)
 		print(pnl.FullText)
 	end
@@ -109,6 +112,7 @@ function PANEL:Init()
 	hook.Add("ConsoleText","Shoop",function(tbl)
 		ConPrint(unpack(tbl))
 	end)
+	LuaMenu.Panel.Console = self
 end
 
 function PANEL:Think()
