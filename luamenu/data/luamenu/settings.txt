@@ -1,1 +1,1 @@
-AutoOpenInfoTitleLuaMenu - running since %time% %size%SkinSteam
+AutoOpenInfoSkinDefaultInfoFlipTitleLuaMenu - running since %time% %size%

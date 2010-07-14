@@ -12,13 +12,14 @@ function PANEL:Init()
 	self.Size = {240,94}
 	self.TextColor = {255,255,255}
 	self.HeadColor = {216,222,211}
+	self.Flip = false
 	
 	if GetConVarNumber("lua_popup_sound") > 0 then
 		surface.PlaySound(Sound("achievements/achievement_earned.mp3"))
 	end
 end
 
-function PANEL:Popup(head,text,dur,x,y,headclr,textclr)
+function PANEL:Popup(head,text,dur,headclr,textclr,flip,x,y)
 	local gts = surface.GetTextSize
 	local tbl = {}
     local newstr = ""
@@ -38,6 +39,7 @@ function PANEL:Popup(head,text,dur,x,y,headclr,textclr)
 	self.Head = head
 	self.Size = {x,y}
 	self.Alive = dur
+	self.Flip = flip
 	self.TextColor = {textclr.r,textclr.g,textclr.b}
 	self.HeadColor = {headclr.r,headclr.g,headclr.b}
 end
@@ -71,7 +73,11 @@ function PANEL:PerformLayout()
 	local w, h = self.Size[1],self.Size[2]
 	
 	self:SetSize(w,h)
-	self:SetPos(ScrW() - w,ScrH() - (h * self.Offset * self.Slot))
+	if self.Flip == true then
+		self:SetPos(ScrW() - w,(h * self.Offset * self.Slot) - h)
+	else
+		self:SetPos(ScrW() - w,ScrH() - (h * self.Offset * self.Slot))
+	end
 end
 
 function PANEL:Paint()

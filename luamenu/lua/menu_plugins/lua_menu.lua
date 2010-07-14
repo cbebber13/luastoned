@@ -158,7 +158,7 @@ end
 
 function LoadSettings()
 	if !file.Exists("luamenu/settings.txt") then 
-		LuaMenu.Settings = {AutoOpen = false,Info=false,Skin = "Default",Title = "LuaMenu",}
+		LuaMenu.Settings = {AutoOpen = false,Info=false,InfoFlip = false,Skin = "Default",Title = "LuaMenu",}
 		return
 	end
 	LuaMenu.Settings = glon.decode(file.Read("luamenu/settings.txt"))
@@ -271,10 +271,10 @@ DPopup = {
 	Popups = {},
 }
 
-function Popup(head,txt,dur,x,y,hclr,tclr)
+function Popup(head,txt,dur,hclr,tclr,flip,x,y)
 	DPopup.Count = DPopup.Count + 1
 	local panel = vgui.Create("popup")
-	panel:Popup(head or "",txt or "",dur or 5,x or 240,y or 92,hclr or Color(216,222,211),tclr or Color(255,255,255))
+	panel:Popup(head or "",txt or "",dur or 5,hclr or Color(216,222,211),tclr or Color(255,255,255),flip or LuaMenu.Settings.InfoFlip,x or 240,y or 92)
 	panel:SetSlot(DPopup.Count)
 	table.insert(DPopup.Popups,panel)
 	timer.Simple(dur or 5,function()
@@ -294,7 +294,7 @@ end
 
 timer.Create("LuaMenu - Info",60,5,function()
 	if LuaMenu.Settings.Info == true then
-		Popup("LuaMenu Information",LuaMenu.Info[math.random(#LuaMenu.Info)])
+		Popup("LuaMenu Information",LuaMenu.Info[math.random(#LuaMenu.Info)],15)
 	end
 end)
 
