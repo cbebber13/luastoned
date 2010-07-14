@@ -33,18 +33,29 @@ function PANEL:Init()
 		LuaMenu.Settings.Title = self:GetValue()
 		SaveSettings()
 	end
-	self.Title:SetPos(5,75)
-	self.Title:SetWide(500)
-
-	function GetSettings()
-		return self
+	
+	self.PopupHelp = vgui.Create("DLabel",self)
+	self.PopupHelp:SetPos(5,105)
+	self.PopupHelp:SetText("Popups come from where")
+	self.PopupHelp:SizeToContents()
+	
+	self.Popup = vgui.Create("DMultiChoice",self)
+	self.Popup:AddChoice("Top")
+	self.Popup:AddChoice("Bottom")
+	self.Popup.OnSelect = function(panel,num,str)
+		LuaMenu.Settings.InfoFlip = (str == "Top") and true or false
+		SaveSettings()
 	end
+	self.Popup:SetText(LuaMenu.Settings.InfoFlip == true and "Top" or "Bottom")
+
+	LuaMenu.Panel.Settings = self
 end
 
 function PANEL:PerformLayout()
 	self:StretchToParent(4,27,4,4)
 	self.Skin:StretchToParent(5,25,5,self:GetTall() - 45)
 	self.Title:StretchToParent(5,75,5,self:GetTall() - 95)
+	self.Popup:StretchToParent(5,125,5,self:GetTall() - 145)
 end
 
 function PANEL:Paint()
