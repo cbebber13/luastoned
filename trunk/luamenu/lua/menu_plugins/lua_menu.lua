@@ -345,6 +345,16 @@ function Popup(head,txt,dur,hclr,tclr,flip,x,y)
 	end)
 end
 
+function DPopup:Think()
+	for k,pop in pairs(self.Popups) do
+		if !IsValid(pop) or pop.Removed then
+			v:Remove()
+			table.remove(self.Popups,k)
+		end
+	end
+end
+hook.Add("Think","LuaMenu - PopupThink",function() DPopup:Think() end)
+
 --lua: Popup("Popup Title","Popup content, can be pretty long actually. Automatically creates newlines etc...",10,nil,nil,Color(100,255,100))
 --lua: Popup("LuaMenu Chat","Stoned: Chat notifications are coming soon, kewl eh?",10,nil,nil,Color(255,255,100))
 
