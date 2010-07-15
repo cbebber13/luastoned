@@ -65,7 +65,7 @@ function PANEL:Think()
 		self.Down = nil
 	end
 	if self.Offset == 0 then
-		self.Removed = true
+		self:Remove()
 	end
 end
 

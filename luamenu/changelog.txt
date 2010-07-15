@@ -1,0 +1,4 @@
+=== 15.7.2010 ===
+
+	- Added TaskBar
+	- Fixed various things

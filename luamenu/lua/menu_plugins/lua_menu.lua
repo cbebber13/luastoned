@@ -98,6 +98,50 @@ include("vgui/DBevel.lua")
 	vgui/DLabelURL.lua
 */
 
+/* Reference
+
+Functions
+
+	PANEL:PaintOver()
+		Like Paint except drawn after everything else has drawn.
+
+	PANEL:ActionSignal( key, value, ... )
+		Receive an ActionSignal (various things are broadcast here)
+	
+	PANEL:OnFocusChanged( bLost )
+		The panel has lost or gained focus
+
+	PANEL:StatusChanged( text )
+		The text in the status bar has changed
+
+	PANEL:ProgressChanged( progress )
+		Loading progress changed
+
+	PANEL:FinishedURL( url )
+		Finished loading a specific URL
+
+	PANEL:OpeningURL( url, target )
+		Page wants to open URL.
+		Return true to not load URL.
+
+Member vars
+
+	All
+		Hovered			- 	bool (true if panel is hovered)
+
+	Button
+		Selected		-	bool (true if button is selected)
+		Depressed		-	bool (true if button is depressed)
+		Armed			-	bool (true if button is hovered)
+		DefaultButton	-	bool (true if button is default button)
+
+	HTML
+		Progress		-	float (Progress bar amount between 0-1)
+		Status			-	string (Status Bar Text)
+		URL				-	string (Current URL)
+	
+*/
+
 --------------------------------------------------
 -- require useful modules
 --------------------------------------------------
@@ -294,7 +338,9 @@ function Popup(head,txt,dur,hclr,tclr,flip,x,y)
 	timer.Simple(dur or 5,function()
 		DPopup.Count = DPopup.Count - 1
 		for k,pop in pairs(DPopup.Popups) do
-			pop:SetSlot(pop:GetSlot() - 1)
+			if IsValid(pop) then
+				pop:SetSlot(pop:GetSlot() - 1)
+			end
 		end
 	end)
 end
