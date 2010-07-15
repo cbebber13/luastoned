@@ -19,16 +19,16 @@ LuaMenu = {
 	Settings = {},
 	Skins = {
 		["Default"] = {
-			func = function(frame) LuaMenu.Paint(frame) end,
-			info = "The basic derma skin",
+			PaintFrame = function(frame) LuaMenu.Paint(frame) end,
+			Info = "The basic derma skin",
 		},
 		["Steam"] = {
-			func = function(frame)
+			PaintFrame = function(frame)
 				draw.RoundedBox(4,0,0,frame:GetWide(),frame:GetTall(),Color(104,106,101,255))
 				draw.RoundedBox(4,1,1,frame:GetWide()-2,frame:GetTall()-2,Color(70,70,70,255))
 				draw.RoundedBox(4,0,0,frame:GetWide(),25,Color(90,106,80,255))
 			end,
-			info = "Steam skin by LuaStoned",
+			Info = "The basic derma skin",
 		},
 	},
 	TmpTitle = "", -- don't spam locals
@@ -46,7 +46,7 @@ function LuaMenu:Reload(str) -- Add a basic reload command, something might brea
 		include("menu_plugins/luaconsole/"..str..".lua")
 		return
 	end
-		
+
 	if LuaMenu and LuaMenu.Frame then LuaMenu.Frame:Close() end
 	include("menu_plugins/lua_menu.lua")
 end
@@ -62,6 +62,7 @@ if !file.Exists("../lua/includes/modules/gmcl_luamenu.dll") then print("Please e
 if (not markup) then include("includes/modules/markup.lua") end
 include("vgui/DTooltip.lua")
 include("vgui/DImageButton.lua")
+include("vgui/DBevel.lua")
 
 /*	what garry loads in the menu, we might need more as seen above
 	vgui/DFrame.lua
@@ -157,7 +158,7 @@ function GetMenuVar(str)
 end
 
 function LoadSettings()
-	if !file.Exists("luamenu/settings.txt") then 
+	if !file.Exists("luamenu/settings.txt") then
 		LuaMenu.Settings = {AutoOpen = false,Info=false,InfoFlip = false,Skin = "Default",Title = "LuaMenu",}
 		return
 	end
@@ -176,7 +177,7 @@ end
 function LuaMenu:Load(arg)
 	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/plugin_*.lua")) do
 		if Irc and lua:find("irc") then
-			print("[LuaMenu] Irc plugin already loaded.")		
+			print("[LuaMenu] Irc plugin already loaded.")
 		else
 			include("menu_plugins/luaconsole/"..lua)
 		end
@@ -184,6 +185,14 @@ function LuaMenu:Load(arg)
 
 	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/vgui_*.lua")) do
 		include("menu_plugins/luaconsole/"..lua)
+	end
+	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/skin_*.lua")) do
+		local tmp = SKIN
+		SKIN = {}
+		include("menu_plugins/luaconsole/"..lua)
+		SKIN.Name = SKIN.Name or "**ERROR** - NO NAME"
+		LuaMenu.Skins[SKIN.Name] = SKIN
+		SKIN = tmp
 	end
 end
 LuaMenu:Load()
@@ -216,7 +225,7 @@ function table.Print(tbl,nr,done)
 			maxlen = tostring(k):len()
 		end
 	end
-		
+
 	for key,value in pairs(tbl) do
 		if type (value) == "table" and not done[value] then
 			done[value] = true
@@ -249,7 +258,7 @@ end
 
 function FormatTime(sec,format)
 	local i = math.floor(sec)
-	
+
 	local h = i / 3600
 	local m = ( i / 60 ) % 60
 	local s = i % 60
@@ -281,7 +290,7 @@ function Popup(head,txt,dur,hclr,tclr,flip,x,y)
 		DPopup.Count = DPopup.Count - 1
 		for k,pop in pairs(DPopup.Popups) do
 			pop:SetSlot(pop:GetSlot() - 1)
-		end		
+		end
 	end)
 end
 
@@ -333,19 +342,19 @@ function LuaMenu:Init()
 		end
 		LuaMenu.PropertySheet:PerformLayout()
 		self:OldPerformLayout(self)
-	end	
+	end
 	self.Paint = self.Frame.Paint
 	self.Frame.Paint = function(frame)
-		pcall(self.Skins[self.Settings.Skin].func or self.Paint,frame)
+		pcall(self.Skins[self.Settings.Skin].PaintFrame or self.Paint,frame)
 	end
-	
+
 	self.PropertySheet = vgui.Create("DPropertySheet")
  	self.PropertySheet:SetParent(self.Frame)
  	self.PropertySheet:SetPos(5,30)
  	self.PropertySheet:SetSize(self.Frame:GetWide() - 10,self.Frame:GetTall() - 35)
-	
+
 	-- register function needs to be rewritten, does not catch all errors and bugs luamenu sometimes
-	
+
 	for k,tab in pairs(file.FindInLua("menu_plugins/luaconsole/tab_*.lua")) do
 		local ok,panel = pcall(vgui.RegisterFile,"menu_plugins/luaconsole/"..tab)
 		if ok and panel then
@@ -354,10 +363,10 @@ function LuaMenu:Init()
 				self.PropertySheet:AddSheet(panel.Name,cont,panel.TabIcon,false,false,panel.Desc)
 				cont:PerformLayout()
 			else
-				ErrorNoHalt("LuaMenu panel '"..tab.."' failed to create : '"..tostring(panel).."'\n")
+				ErrorNoHalt("LuaMenu panel '"..tab.."' failed to create : '"..tostring(cont).."'\n")
 			end
 		else
-			ErrorNoHalt("LuaMenu panel '"..tab.."' failed : '"..tostring(panel).."'\n")
+			ErrorNoHalt("LuaMenu panel '"..tab.."' failed : '"..tostring(cont).."'\n")
 		end
 	end
 
@@ -369,11 +378,11 @@ function LuaMenu:Init()
 		if !LuaMenu.Frame then return end
 		LuaMenu.TmpTitle = LuaMenu.Settings.Title:gsub("%%time%%",FormatTime(CurTime(),"%02i:%02i:%02i"))
 		LuaMenu.TmpTitle = LuaMenu.TmpTitle:gsub("%%size%%","("..LuaMenu.Frame:GetWide().." x "..LuaMenu.Frame:GetTall()..")")
-		
+
 		LuaMenu.Frame:SetTitle(LuaMenu.TmpTitle)
 	end)
 	concommand.Add("lua_menu_close",function() LuaMenu.Frame:Close() end)
-	
+
 	http.Get("http://gmod.luastoned.com/update.php?version="..self.Version,"",function(cont,size)
 		--print(cont)
 	end)
