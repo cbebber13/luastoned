@@ -43,7 +43,7 @@ function PANEL:Init()
 	end
 	
 	hook.Add("IrcText","Shoop",function(name,text,chan)
-		local pnl = LuaMenu.Irc.Output:AddLine(tostring(os.date("%I:%M:%S")),name..": "..text)
+		local pnl = LuaMenu.Panel.Irc.Output:AddLine(tostring(os.date("%I:%M:%S")),name..": "..text)
 		pnl.FullText = name..": "..text
 	end)
 	
