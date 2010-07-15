@@ -13,9 +13,8 @@ function PANEL:Init()
 	self.SkinHelp:SizeToContents()
 	
 	self.Skin = vgui.Create("DMultiChoice",self)
-	for k,skin in pairs(LuaMenu.Skins) do
-		self.Skin:AddChoice(skin)
-	end
+	self.Skin:AddChoice("Default")
+	self.Skin:AddChoice("Steam")
 	self.Skin.OnSelect = function(panel,num,str)
 		LuaMenu.Settings.Skin = str
 		SaveSettings()

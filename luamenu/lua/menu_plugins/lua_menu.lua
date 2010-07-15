@@ -39,6 +39,7 @@ LuaMenu = {
 		"If you don't like this popups, turn them off in the settings tab.",
 		"_G.arry = nil",
 	},
+	CloseFrames = {},
 }
 
 function LuaMenu:Reload(str) -- Add a basic reload command, something might break >:O
@@ -47,7 +48,11 @@ function LuaMenu:Reload(str) -- Add a basic reload command, something might brea
 		return
 	end
 
-	if LuaMenu and LuaMenu.Frame then LuaMenu.Frame:Close() end
+	for k,frame in pairs(self.CloseFrames) do
+		if IsValid(frame) then
+			frame:Close() -- frame:Remove()
+		end
+	end
 	include("menu_plugins/lua_menu.lua")
 end
 concommand.Add("lua_menu_reload",function(p,c,a) LuaMenu:Reload(a[1]) end)
@@ -282,7 +287,7 @@ DPopup = {
 
 function Popup(head,txt,dur,hclr,tclr,flip,x,y)
 	DPopup.Count = DPopup.Count + 1
-	local panel = vgui.Create("popup")
+	local panel = vgui.Create("Popup")
 	panel:Popup(head or "",txt or "",dur or 5,hclr or Color(216,222,211),tclr or Color(255,255,255),flip or LuaMenu.Settings.InfoFlip,x or 240,y or 92)
 	panel:SetSlot(DPopup.Count)
 	table.insert(DPopup.Popups,panel)
@@ -308,6 +313,58 @@ timer.Create("LuaMenu - Info",60,5,function()
 end)
 
 Popup("LuaMenu","LuaMenu has successfully loaded, enjoy this addon.")
+
+--------------------------------------------------
+-- FrameBar, very hacky at the moment, needs work
+--------------------------------------------------
+
+LuaMenu.Frames = 0
+LuaMenu.FrameBar = vgui.Create("LuaMenuBar")
+LuaMenu.FrameBar:MakePopup()
+table.insert(LuaMenu.CloseFrames,LuaMenu.FrameBar)
+
+function LuaMenu:AddFrame(panel,name,align)
+	panel.SysButton = vgui.Create("DSysButton")
+	panel.SysButton:SetParent(panel)
+	panel.SysButton:SetPos(panel:GetWide()-40,0)
+	panel.SysButton:SetSize(20,20)
+	panel.SysButton:SetType("down") -- This can be "up", "down", "left", "right", "updown", "close", "grip", "tick", "question", and "none".
+	panel.SysButton.Paint = function() end
+	panel.SysButton.DoClick = function(self) self:SetVisible(false) end
+		
+	-- Move this code to the bar as soon as possible
+	local buttontab = vgui.Create("DButton")
+	buttontab:SetParent(self.FrameBar)
+	buttontab:SetSize(100,20)
+	buttontab:SetPos(40 + self.Frames * 120,5)
+	buttontab:SetText(name or "untitled")
+	buttontab.DoClick = function(self)
+		if panel:IsVisible() == true then
+			panel:SetVisible(false)
+		else
+			panel:SetVisible(true)
+			panel:RequestFocus()
+		end
+	end
+	
+	buttontab.Paint = function(self)
+		if self.Hovered then
+			draw.RoundedBox(4,0,0,self:GetWide(),self:GetTall(),Color(110,126,100,255))
+		else
+			draw.RoundedBox(4,0,0,self:GetWide(),self:GetTall(),Color(90,106,80,255))
+		end
+	end
+	
+	self.Frames = self.Frames + 1
+	
+	-- very hacky, fix this
+	local close = panel.Close
+	panel.Close = function(panel)
+		close(panel)
+		buttontab:Remove()
+		self.Frames = self.Frames - 1
+	end
+end
 
 --------------------------------------------------
 -- LuaMenu Init, create the frame, don't show yet
@@ -347,6 +404,9 @@ function LuaMenu:Init()
 	self.Frame.Paint = function(frame)
 		pcall(self.Skins[self.Settings.Skin].PaintFrame or self.Paint,frame)
 	end
+	
+	self:AddFrame(self.Frame,"LuaMenu") -- Add the mainframe to the bar
+	table.insert(self.CloseFrames,self.Frame)
 
 	self.PropertySheet = vgui.Create("DPropertySheet")
  	self.PropertySheet:SetParent(self.Frame)

@@ -103,4 +103,4 @@ function PANEL:Paint()
 	draw.DrawText(self.Head,"Default14",10,10,Color(self.HeadColor[1],self.HeadColor[2],self.HeadColor[3],a),TEXT_ALIGN_LEFT) -- 88,30
 	draw.DrawText(self.Text,"Default",10,26,Color(self.TextColor[1],self.TextColor[2],self.TextColor[3],a),TEXT_ALIGN_LEFT) -- 88,46	
 end
-vgui.Register("popup",PANEL)
+vgui.Register("Popup",PANEL)
