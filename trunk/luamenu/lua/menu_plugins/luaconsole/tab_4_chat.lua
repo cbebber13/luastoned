@@ -35,14 +35,14 @@ function PANEL:Init()
 	self.Input = vgui.Create("DTextEntry",self)
 	self.Input:SetText("")
 	self.Input:RequestFocus()
-	self.Input.OnEnter = function(self)
-		local str = self:GetValue()
-		self:SetText("")
-		self:RequestFocus()
+	self.Input.OnEnter = function(inp)
+		local str = inp:GetValue()
+		inp:SetText("")
+		inp:RequestFocus()
 		if str ~= "" and str ~= " " then
 			str = str:gsub("~","-")
 			str = str:gsub("@","[at]")
-			http.Get("http://gmod.luastoned.com/chat.php?name="..GetChat().UserName.."&str="..str:gsub(" ","+"),"",Update)
+			http.Get("http://gmod.luastoned.com/chat.php?name="..self.UserName.."&str="..str:gsub(" ","+"),"",Update)
 		end
 	end
 	
