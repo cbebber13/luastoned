@@ -80,13 +80,19 @@ function PANEL:ForceClose()
 	self.ForceOpen = false
 end
 
+function PANEL:OnCursorEntered()
+	self.Direction = 1
+end
+
+/*function PANEL:OnCursorExited()
+	self.Direction = -1
+end*/
+
 function PANEL:Think()
 	if self.ForceOpen == true then return end
 	local x,y = gui.MousePos()
-	if y > 1075 and self.Offset == 0 then
-		self.Direction = 1
-	end
-	if y == 0 and self.Offset == 1 and self.Down == nil and self.ForceOpen == false then
+	
+	if y < ScrH() - 35 and self.Offset == 1 and self.Down == nil and self.ForceOpen == false then
 		self.Down = CurTime() + 0.5
 	end	
 	
