@@ -348,7 +348,7 @@ end
 function DPopup:Think()
 	for k,pop in pairs(self.Popups) do
 		if !IsValid(pop) or pop.Removed then
-			v:Remove()
+			pop:Remove()
 			table.remove(self.Popups,k)
 		end
 	end
