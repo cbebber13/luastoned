@@ -57,6 +57,15 @@ echo.
 copy ".\..\..\lua\menu_plugins\luaconsole\*" ".\..\..\lua\menu_plugins\backup\*"
 
 echo.
+echo.- I removed following files:
+echo.
+
+for %%A in (".\..\..\lua\menu_plugins\luaconsole\*.lua") do (
+	del "%%A"
+)
+
+
+echo.
 echo.- I moved following files:
 echo.
 
