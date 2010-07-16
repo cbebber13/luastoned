@@ -4,7 +4,7 @@ PANEL.Desc = "Browse the web!"
 PANEL.TabIcon = "gui/silkicons/application"
 
 function PANEL:Init()
-	self.Forward = {}
+	self.FHist = {}
 	self.History = {}
 	self.Settings = {}
 	self.ShouldLog = true
@@ -76,11 +76,11 @@ function PANEL:Init()
 		if !self.AddressBar:HasFocus() then
 			self.AddressBar:SetValue(url)
 		end
-		if url ~= self.Forward[#self.Forward] and url ~= self.History[#self.History] then
-			self.Forward = {}
+		if url ~= self.FHist[#self.FHist] and url ~= self.History[#self.History] then
+			self.FHist = {}
 		end
-		if url == self.Forward[#self.Forward] then
-			table.remove(self.Forward,#self.Forward)
+		if url == self.FHist[#self.FHist] then
+			table.remove(self.FHist,#self.FHist)
 		end
 		table.insert(self.History,url)
 	end
@@ -172,10 +172,10 @@ function PANEL:Init()
 	self.Forward = vgui.Create("DImageButton",self)
 	self.Forward:SetImage("gui/silkicons/arrow_right")
 	self.Forward.DoClick = function(button)
-		if !self.Forward[#self.Forward] then return end
-		table.insert(self.History,self.Forward[#self.Forward])
-		self.Browser:OpenURL(self.Forward[#self.Forward])
-		table.remove(self.Forward,#self.Forward)
+		if !self.FHist[#self.FHist] then return end
+		table.insert(self.History,self.FHist[#self.FHist])
+		self.Browser:OpenURL(self.FHist[#self.FHist])
+		table.remove(self.FHist,#self.FHist)
 	end
 	self.Forward:SetTooltip("Forward")
 	
@@ -183,7 +183,7 @@ function PANEL:Init()
 	self.Back:SetImage("gui/silkicons/arrow_left")
 	self.Back.DoClick = function(button)
 		if !self.History[#self.History] then return end
-		table.insert(self.Forward,self.Browser.URL)
+		table.insert(self.FHist,self.Browser.URL)
 		self.Browser:OpenURL(self.History[#self.History])
 		table.remove(self.History,#self.History)
 		table.remove(self.History,#self.History)
@@ -214,32 +214,38 @@ function PANEL:Init()
 	
 	self.Refresh:SetPos(45,5)
 	self.Refresh:SetSize(16,16)
-	self.Refresh.m_Image:SetPos(0,0)
+	
 	self.Stop:SetPos(65,5)
 	self.Stop:SetSize(16,16)
-	self.Stop.m_Image:SetPos(0,0)
+	
 	self.Forward:SetPos(25,5)
 	self.Forward:SetSize(16,16)
-	self.Forward.m_Image:SetPos(0,0)
+	
 	self.Back:SetPos(5,5)
 	self.Back:SetSize(16,16)
-	self.Back.m_Image:SetPos(0,0)
+	
 	self.FavButton:SetPos(85,5)
 	self.FavButton:SetSize(16,16)
-	self.FavButton.m_Image:SetPos(0,0)
+	
 	
 	LuaMenu.Panel.WebBrowser = self
 end
 
 function PANEL:PerformLayout()
 	self:StretchToParent(4,27,4,4)
-	self.AddressBar:StretchToParent(120,5,120,self:GetTall() - 24)
-	self.SearchBar:StretchToParent(self.AddressBar:GetWide(),5,5,self:GetTall() - 24)
+	self.AddressBar:StretchToParent(110,5,200,self:GetTall() - 24)
+	self.SearchBar:StretchToParent(self.AddressBar:GetWide() + 119,5,5,self:GetTall() - 24)
 	--self.Refresh:StretchToParent()
 	--self.Stop:StretchToParent()
 	--self.Forward:StretchToParent()
 	--self.Back:StretchToParent()
 	--self.FavButton:StretchToParent()
+	self.Refresh.m_Image:SetPos(0,0)
+	self.Stop.m_Image:SetPos(0,0)
+	self.Forward.m_Image:SetPos(0,0)
+	self.Back.m_Image:SetPos(0,0)
+	self.FavButton.m_Image:SetPos(0,0)
+	
 	self.Browser:StretchToParent(0,24,0,24)
 	self.StatusBar:StretchToParent(0,self.Browser:GetTall() + 29,0,0)
 end
