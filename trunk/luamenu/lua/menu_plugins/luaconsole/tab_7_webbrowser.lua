@@ -234,7 +234,7 @@ end
 function PANEL:PerformLayout()
 	self:StretchToParent(4,27,4,4)
 	self.AddressBar:StretchToParent(110,5,200,self:GetTall() - 24)
-	self.SearchBar:StretchToParent(self.AddressBar:GetWide() + 119,5,5,self:GetTall() - 24)
+	self.SearchBar:StretchToParent(self.AddressBar:GetWide() + 109,5,5,self:GetTall() - 24)
 	--self.Refresh:StretchToParent()
 	--self.Stop:StretchToParent()
 	--self.Forward:StretchToParent()
