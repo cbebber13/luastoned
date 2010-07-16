@@ -21,6 +21,22 @@ function PANEL:Init()
 	end
 	self.Start.DoClick = function(self)
 		local parent = self:GetParent()
+
+		if !self.StartMenu or !self.StartMenu:IsValid() then
+				self.StartMenu = vgui.Create"LuaStartMenu"
+			self.StartMenu:AddMainApp("LuaMenu", "gui/silkicons/application", function()
+				if !LuaMenu.Closed then
+					Popup("Already Running", "LuaMenu is already running!\nYou can only have one instance of LuaMenu running at a time!")
+				else
+					LuaMenu:Toggle()
+				end
+			end)
+			parent.ForceOpen = true
+		else
+			self.StartMenu:Remove()
+			self.StartMenu = nil
+			parent.ForceOpen = false
+		end
 		parent.ForceOpen = true
 		local menu = DermaMenu()
 		menu:SetMinimumWidth(200)
@@ -80,9 +96,9 @@ function PANEL:ForceClose()
 	self.ForceOpen = false
 end
 
-function PANEL:OnCursorEntered()
+/*function PANEL:OnCursorEntered()
 	self.Direction = 1
-end
+end*/
 
 /*function PANEL:OnCursorExited()
 	self.Direction = -1
@@ -94,6 +110,8 @@ function PANEL:Think()
 	
 	if y < ScrH() - 35 and self.Offset == 1 and self.Down == nil and self.ForceOpen == false then
 		self.Down = CurTime() + 0.5
+	elseif y > ScrH() - 35 and self.Offset == 0 then
+		self.Direction = 1
 	end	
 	
 	self.Offset = math.Clamp(self.Offset + (self.Direction * 0.01 * self.Speed),0,1) -- FrameTime()
