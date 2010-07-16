@@ -148,7 +148,7 @@ function PANEL:Paint()
 	end
 end
 
-function PANEL:OnMousePressed(code)
+/*function PANEL:OnMousePressed(code)
 	local pos = gui.MousePos()
 	print(pos)
 	if pos.x >= 600 and pos.x <= 800 then -- in the box :P
@@ -156,4 +156,4 @@ function PANEL:OnMousePressed(code)
 			self.MouseDone = false
 		end
 	end
-end
+end*/
