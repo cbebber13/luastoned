@@ -37,51 +37,6 @@ function PANEL:Init()
 			self.StartMenu = nil
 			parent.ForceOpen = false
 		end
-		parent.ForceOpen = true
-		local menu = DermaMenu()
-		menu:SetMinimumWidth(200)
-		menu:SetDrawBorder(false)
-
-		function menu:OpenSubMenu(item, menu) -- thanks to ja_cop
-			-- why can menu be nil anyway? Just don't call this callback if it's nil
-			if not menu then return end
-			local openMenu = self:GetOpenSubMenu()
-			if openMenu and openMenu ~= menu then
-				self:CloseSubMenu(openMenu)
-			else
-				local x, y = item:LocalToScreen(self:GetWide(), 0)
-				menu:Open(x - 1, y - 36, false, item)
-				self:SetOpenSubMenu(menu)
-			end
-		end		
-		local addop = function(self,str,func)
-			local pnl = vgui.Create("DMenuOption",self)
-			pnl:SetText(str)
-			local func = function()
-				parent:ForceClose()
-				if (func) then func() end
-			end
-			pnl.DoClick = func
-			self:AddPanel(pnl)
-			return true
-		end
-		
-		menu.AddOption = addop
-		local open = menu:AddSubMenu("Open",function() Popup("LuaMenu","Open cool stuff here.") end)
-		open.AddOption = addop
-		open:AddOption("LuaMenu",function() Popup("LuaMenu","I'm toggling myself, yay! :D") LuaMenu:Toggle() end)
-		open:AddOption("Steam Friends",function() Popup("LuaMenu","Coming soon...") end)
-		open:AddOption("Server List",function() Popup("LuaMenu","Coming soon...") end)		
-		menu:AddSpacer()
-		menu:AddOption("New")
-		menu:AddOption("Load")
-		menu:AddOption("Save")
-		menu:AddSpacer()
-		local run = menu:AddSubMenu("Run",function() Popup("LuaMenu","Run Lua everywhere :)") end)
-		run.AddOption = addop
-		run:AddOption("print('Credtis')",function() print("Credits go to LuaStoned (stoned/the-stone), Deco, Gbps, Tobba, many others...") end)
-		run:AddOption("print('Version')",function() print("LuaMenu Version: "..LuaMenu.Version) end)
-		menu:Open(0,ScrH()-29)
 	end
 end
 
