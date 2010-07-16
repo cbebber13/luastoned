@@ -39,6 +39,7 @@ LuaMenu = {
 		"If you don't like this popups, turn them off in the settings tab.",
 		"_G.arry = nil",
 	},
+	Closed = true,
 	CloseFrames = {},
 }
 
@@ -68,6 +69,10 @@ if (not markup) then include("includes/modules/markup.lua") end
 include("vgui/DTooltip.lua")
 include("vgui/DImageButton.lua")
 include("vgui/DBevel.lua")
+include("vgui/DTree.lua")
+include("vgui/DTree_Node.lua")
+include("vgui/DTree_Node_Button.lua")
+include("vgui/DTinyButton.lua")
 
 /*	what garry loads in the menu, we might need more as seen above
 	vgui/DFrame.lua
@@ -150,6 +155,7 @@ require("luamenu")
 require("oosocks")
 require("glon")
 require("json")
+json = Json -- stupid but heh :3
 
 RunString = MenuRunString
 
@@ -206,12 +212,13 @@ function GetMenuVar(str)
 	return nil
 end
 
+LuaMenu.Settings = {AutoOpen = false,Info=false,InfoFlip = false,Skin = "Default",Title = "LuaMenu",}
 function LoadSettings()
 	if !file.Exists("luamenu/settings.txt") then
-		LuaMenu.Settings = {AutoOpen = false,Info=false,InfoFlip = false,Skin = "Default",Title = "LuaMenu",}
+		
 		return
 	end
-	LuaMenu.Settings = glon.decode(file.Read("luamenu/settings.txt"))
+	LuaMenu.Settings = table.Merge(LuaMenu.Settings, glon.decode(file.Read("luamenu/settings.txt")))
 end
 LoadSettings()
 
@@ -348,8 +355,12 @@ end
 function DPopup:Think()
 	for k,pop in pairs(self.Popups) do
 		if !IsValid(pop) or pop.Removed then
-			pop:Remove()
-			table.remove(self.Popups,k)
+			if !IsValid() then
+				table.remove(self.Popups,k)
+			else
+				pop:Remove()
+				table.remove(self.Popups,k)
+			end
 		end
 	end
 end
@@ -386,7 +397,7 @@ function LuaMenu:AddFrame(panel,name,align)
 	panel.SysButton:SetSize(20,20)
 	panel.SysButton:SetType("down") -- This can be "up", "down", "left", "right", "updown", "close", "grip", "tick", "question", and "none".
 	panel.SysButton.Paint = function() end
-	panel.SysButton.DoClick = function(self) self:SetVisible(false) end
+	panel.SysButton.DoClick = function(self) panel:SetVisible(false) end
 		
 	-- Move this code to the bar as soon as possible
 	local buttontab = vgui.Create("DButton")
@@ -395,7 +406,7 @@ function LuaMenu:AddFrame(panel,name,align)
 	buttontab:SetPos(40 + self.Frames * 120,5)
 	buttontab:SetText(name or "untitled")
 	buttontab.DoClick = function(self)
-		if panel:IsVisible() == true then
+		if panel:IsVisible()  then
 			panel:SetVisible(false)
 		else
 			panel:SetVisible(true)
@@ -417,6 +428,7 @@ function LuaMenu:AddFrame(panel,name,align)
 	local close = panel.Close
 	panel.Close = function(panel)
 		close(panel)
+		--panel.Close = close -- that does not makse sense at all, wtf
 		buttontab:Remove()
 		self.Frames = self.Frames - 1
 	end
@@ -427,6 +439,7 @@ end
 --------------------------------------------------
 
 function LuaMenu:Init()
+	self.Closed = false
 	self.Frame = vgui.Create("DFrame")
 	self.Frame:SetSize(ScrW() / 1.5,ScrH() / 1.5)
 	self.Frame:SetPos(ScrW() - ScrW() / 1.5 - 50,50)
@@ -471,13 +484,55 @@ function LuaMenu:Init()
 
 	-- register function needs to be rewritten, does not catch all errors and bugs luamenu sometimes
 
+	local pstable = self.PropertySheet:GetTable() -- revise this, lololol
+	local num_errors = {}
 	for k,tab in pairs(file.FindInLua("menu_plugins/luaconsole/tab_*.lua")) do
 		local ok,panel = pcall(vgui.RegisterFile,"menu_plugins/luaconsole/"..tab)
 		if ok and panel then
+			for k, v in pairs(panel) do
+				if type(v) == "function" then
+					local old = v
+					panel[k] = function(...)
+						local ok, err = pcall(old, ...)
+						if !ok then
+							--num_errors[tab] = num_errors[tab] or 0
+							--num_errors[tab] = num_errors[tab] + 1
+							--local str = err
+							--Msg("ERROR: "..str)
+							--timer.Simple(0, function()
+								--local pnl = GetError().Output:AddLine(tostring(os.date("%I:%M:%S")),"Tab Error",str:gsub("\n"," "))
+								--pnl.FullText = str
+							--end)
+						end
+					end
+				end
+			end
 			local ok,cont = pcall(vgui.CreateFromTable,panel,self.PropertySheet)
 			if ok then
-				self.PropertySheet:AddSheet(panel.Name,cont,panel.TabIcon,false,false,panel.Desc)
-				cont:PerformLayout()
+				if !panel or !cont or !panel.Name then
+					//Msg("Failed adding tab "..tab.." panel or content did not exist!")
+				else
+					self.PropertySheet:AddSheet(panel.Name,cont,panel.TabIcon,false,false,panel.Desc)
+					local pnl = pstable.Items[#pstable.Items].Tab.Panel
+
+					--local img = vgui.Create("DImage",pnl)
+					--img:SetPos(pnl:GetWide() - 25,-10)
+					--img:SetSize(16,16)
+					--img:NoClipping(true)
+					--img:SetImage("gui/silkicons/delete")
+					--img.p = img.Paint
+					--img.Paint = function(self)
+					--	if !num_errors[tab] then return end
+					--	self.p(self)
+					--	draw.RoundedBox(0,4,7,8,2,Color(238,102,82,255))
+					--	if num_errors[tab] > 9 then
+					--		draw.DrawText("+","Default",5,1,Color(255,255,255,255),ALIGN_LEFT)
+					--	else
+					--		draw.DrawText(num_errors[tab],"Default",5,1,Color(255,255,255,255),ALIGN_LEFT)
+					--	end
+					--end
+					cont:PerformLayout()
+				end
 			else
 				ErrorNoHalt("LuaMenu panel '"..tab.."' failed to create : '"..tostring(cont).."'\n")
 			end
@@ -505,7 +560,7 @@ function LuaMenu:Init()
 end
 
 function LuaMenu:Toggle()
-	if !(self.Frame) then
+	if !self.Frame then
 		LuaMenu:Init()
 	end
 	if self.IsOpen == false then
@@ -513,6 +568,10 @@ function LuaMenu:Toggle()
 		self.Frame:SetVisible(true)
 		self.Frame:SetKeyboardInputEnabled(true)
 		self.Frame:SetMouseInputEnabled(true)
+		if LuaMenu.Closed then
+			self:AddFrame(self.Frame,"LuaMenu") -- Add the mainframe to the bar
+			LuaMenu.Closed = false
+		end
 	else
 		self.IsOpen = false
 		self.Frame:SetVisible(false)
@@ -523,7 +582,7 @@ end
 concommand.Add("lua_menu",function() LuaMenu:Toggle() end)
 
 hook.Add("Think","LuaMenu - Init",function()
-	if LuaMenu.Settings.AutoOpen == true then
+	if LuaMenu.Settings.AutoOpen then
 		LuaMenu:Toggle()
 	end
 	hook.Remove("Think","LuaMenu - Init")
