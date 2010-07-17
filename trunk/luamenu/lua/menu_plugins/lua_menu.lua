@@ -16,7 +16,14 @@ LuaMenu = {
 	IsOpen = false,
 	Panel = {},
 	Console = {["Text"] = ""},
-	Settings = {},
+	Settings = {
+		["AutoOpen"] = true,
+		["AutoCloseConsole"] = true,
+		["Info"] = false,
+		["InfoFlip"] = false,
+		["Skin"] = "Default",
+		["Title"] = "LuaMenu",
+	},
 	Skins = {
 		["Default"] = {
 			PaintFrame = function(frame) LuaMenu.Paint(frame) end,
@@ -155,9 +162,6 @@ require("luamenu")
 require("oosocks")
 require("glon")
 require("json")
-json = Json -- stupid but heh :3
-
-RunString = MenuRunString
 
 --------------------------------------------------
 -- Hook LuaConsole
@@ -212,10 +216,8 @@ function GetMenuVar(str)
 	return nil
 end
 
-LuaMenu.Settings = {AutoOpen = false,Info=false,InfoFlip = false,Skin = "Default",Title = "LuaMenu",}
 function LoadSettings()
-	if !file.Exists("luamenu/settings.txt") then
-		
+	if !file.Exists("luamenu/settings.txt") then		
 		return
 	end
 	LuaMenu.Settings = table.Merge(LuaMenu.Settings, glon.decode(file.Read("luamenu/settings.txt")))
@@ -582,8 +584,13 @@ end
 concommand.Add("lua_menu",function() LuaMenu:Toggle() end)
 
 hook.Add("Think","LuaMenu - Init",function()
-	if LuaMenu.Settings.AutoOpen then
+	if LuaMenu.Settings.AutoOpen == true then
 		LuaMenu:Toggle()
+	end
+	if LuaMenu.Settings.AutoCloseConsole == true then
+		if IsConsoleOpen() then
+			MenuCommand("toggleconsole")
+		end
 	end
 	hook.Remove("Think","LuaMenu - Init")
 end)
