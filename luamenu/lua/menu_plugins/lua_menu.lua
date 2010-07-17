@@ -18,7 +18,7 @@ LuaMenu = {
 	Console = {["Text"] = ""},
 	Settings = {
 		["AutoOpen"] = true,
-		["AutoCloseConsole"] = true,
+		["AutoCloseConsole"] = false,
 		["Info"] = false,
 		["InfoFlip"] = false,
 		["Skin"] = "Default",
