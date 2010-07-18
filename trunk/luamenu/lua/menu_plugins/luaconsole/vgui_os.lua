@@ -23,7 +23,7 @@ function PANEL:Init()
 		local parent = self:GetParent()
 
 		if !self.StartMenu or !self.StartMenu:IsValid() then
-				self.StartMenu = vgui.Create"LuaStartMenu"
+			self.StartMenu = vgui.Create("LuaStartMenu")
 			self.StartMenu:AddMainApp("LuaMenu", "gui/silkicons/application", function()
 				if !LuaMenu.Closed then
 					Popup("Already Running", "LuaMenu is already running!\nYou can only have one instance of LuaMenu running at a time!")
