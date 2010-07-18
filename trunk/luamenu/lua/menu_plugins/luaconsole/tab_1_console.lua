@@ -73,15 +73,16 @@ function PANEL:Init()
 		local line = pnl:AddLine(tostring(os.date("%I:%M:%S")),"") -- fix copy 2 clipboard!
 		local line_paint = line.Paint
 		local line_markup = {}
+		local tbl = {}
 		for k,obj in pairs({...}) do
 			if type(obj) == "table" then
 				table.insert(line_markup,string.format("<color=%i,%i,%i,255>",obj.r,obj.g,obj.b))
 			elseif type(obj) == "string" then
+				table.insert(tbl,obj)
 				if obj:sub(1,-2):find("\n") then
 					local part1 = obj:sub(1,obj:find("\n")):sub(1,-2)
 					local part2 = obj:sub(obj:find("\n"),-1):sub(2,-1)
 					table.insert(line_markup,string.format("%s</color>",part1))
-					--ConPrint(unpack(string.Explode("$",table.concat({...},"$",k))))
 				else
 					table.insert(line_markup,string.format("%s</color>",obj))
 				end
@@ -90,6 +91,7 @@ function PANEL:Init()
 			end
 		end
 		line.Markup = markup.Parse(table.concat(line_markup,""))
+		line.FullText = table.concat(tbl,"")
 
 		line.Paint = function(self)
 			line_paint(self)
@@ -98,7 +100,6 @@ function PANEL:Init()
 			end
 		end
 			
-		line.FullText = str
 		pnl:ClearSelection()
 		timer.Simple(0.01,function(self) self.Output.VBar:SetScroll(self.Output.VBar.CanvasSize) end,self)
 	end
