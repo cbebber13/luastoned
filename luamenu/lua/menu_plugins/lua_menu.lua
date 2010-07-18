@@ -456,6 +456,7 @@ function LuaMenu:Init()
 	self.Frame:MakePopup()
 	self.Frame.Close = function(self)
 		LuaMenu.IsOpen = false
+		LuaMenu.Closed = true
 		self:SetVisible(false)
 		self:SetKeyboardInputEnabled(false)
 		self:SetMouseInputEnabled(false)
