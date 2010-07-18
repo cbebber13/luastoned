@@ -5,7 +5,10 @@
 ---------------------------------------------
 
 Irc = {
-	Name = "luamenu_user"..math.random(1000),
+	Name = GetMenuVar("globalchat_name") or Derma_StringRequest("What's your Name?","Please enter your Name for (irc) chat.","User"..math.random(9)..math.random(9)..math.random(9),function(str)
+		Irc.Name = str
+		SetMenuVar("globalchat_name",str)
+	end),
 	EMail = "luamenu@bot.net",
 	Host = "irc.gamesurge.net",
 	Channels = {"#luahelp"},
@@ -153,13 +156,13 @@ function Irc:Format(str)
 	if str:sub(1,1) == "/" then
 		local cmd,arg = str:sub(2):match("([%w_]+)%s?(.*)")
 		if cmd == "join" then
-			self:JoinChan({arg})
+			self:Join({arg})
 		elseif cmd == "leave" then
 			self:LeaveChan({arg})
 		elseif cmd == "quit" then
 			self:Disconnect({arg})
 		elseif cmd == "nick" then
-			self:SetNick(arg)
+			self:SetName(arg)
 		elseif cmd == "w" then
 			local user,txt = arg:match("([%w_]+)%s?(.*)")
 			self:Send(user,txt)
@@ -169,11 +172,11 @@ function Irc:Format(str)
 		elseif cmd == "c" then
 			self.Chan = arg
 		else
-			hook.Call("IrcText",nil,self.Nick,str,self.Chan)
+			hook.Call("IrcText",nil,self.Name,str,self.Chan)
 			self:Send(self.Chan,str)
 		end
 	else
-		hook.Call("IrcText",nil,self.Nick,str,self.Chan)
+		hook.Call("IrcText",nil,self.Name,str,self.Chan)
 		self:Send(self.Chan,str)
 	end
 end
