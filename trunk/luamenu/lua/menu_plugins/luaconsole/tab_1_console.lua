@@ -24,18 +24,16 @@ function PANEL:Init()
 		ConPrint(cmd)
 	end
 	
-	/*self.Output.OnRowRightClick = function(id,lineid,line)
+	self.Output.OnRowRightClick = function(id,lineid,line)
 		local menu = DermaMenu()
 		menu:AddOption("Copy to clipboard >",function()
-			print(line:GetValue(1))
-			print(line:GetValue(2))
-			SetClipboardText(line:GetValue(2))
+			SetClipboardText(line.FullText)
 		end)
 		menu:AddOption("Copy to command line >",function()
-			self.Input:SetText(line:GetValue(2))
+			self.Input:SetText(line.FullText)
 		end)
 		menu:Open()
-	end*/
+	end
 	
 	self.Input = vgui.Create("DTextEntry",self)
 	self.Input:SetText("")
@@ -100,13 +98,9 @@ function PANEL:Init()
 			end
 		end
 			
-		--pnl.FullText = str
+		line.FullText = str
 		pnl:ClearSelection()
 		timer.Simple(0.01,function(self) self.Output.VBar:SetScroll(self.Output.VBar.CanvasSize) end,self)
-	end
-	
-	local function ConsoleLineDblClicked(pnl)
-		print(pnl.FullText)
 	end
 	
 	hook.Add("ConsoleText","Shoop",function(tbl)
