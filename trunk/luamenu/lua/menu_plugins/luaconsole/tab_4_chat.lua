@@ -5,7 +5,7 @@ PANEL.TabIcon = "gui/silkicons/comments"
 
 function PANEL:Init()
 	self.UserName = GetMenuVar("globalchat_name") or Derma_StringRequest("What's your Name?","Please enter your Name for the global chat.","User"..math.random(9)..math.random(9)..math.random(9),function(str)
-		GetChat().UserName = str
+		self.UserName = str
 		SetMenuVar("globalchat_name",str)
 	end)
 	self:SetMouseInputEnabled(true)
@@ -47,7 +47,7 @@ function PANEL:Init()
 	end
 	
 	hook.Add("GlobalChat","Shoop",function(name,str)
-		local pnl = GetChat().Output:AddLine(name,str:gsub("\n"," "))
+		local pnl = self.Output:AddLine(name,str:gsub("\n"," "))
 	end)
 	
 	timer.Create("GlobalChatUpdate",10,0,function()
