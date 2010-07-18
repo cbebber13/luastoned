@@ -11,7 +11,7 @@ Irc = {
 	end),
 	EMail = "luamenu@bot.net",
 	Host = "irc.gamesurge.net",
-	Channels = {"#luahelp"},
+	Channels = {"#gmod"},
 	Debug = CreateClientConVar("irc_debug",0,true,false),
 	Version = 1.0,
 }
