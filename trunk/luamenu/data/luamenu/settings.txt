@@ -1,1 +1,0 @@
-AutoOpenInfoSkinDefaultAutoCloseConsoleInfoFlipTitleLuaMenu - running since %time% %size%

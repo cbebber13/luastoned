@@ -19,6 +19,7 @@ LuaMenu = {
 	Settings = {
 		["AutoOpen"] = true,
 		["AutoCloseConsole"] = false,
+		["EditorAutoindent"] = true,
 		["Info"] = false,
 		["InfoFlip"] = false,
 		["Skin"] = "Default",
@@ -217,7 +218,8 @@ function GetMenuVar(str)
 end
 
 function LoadSettings()
-	if !file.Exists("luamenu/settings.txt") then		
+	if !file.Exists("luamenu/settings.txt") then
+		SaveSettings()
 		return
 	end
 	LuaMenu.Settings = table.Merge(LuaMenu.Settings, glon.decode(file.Read("luamenu/settings.txt")))
@@ -484,6 +486,15 @@ function LuaMenu:Init()
  	self.PropertySheet:SetParent(self.Frame)
  	self.PropertySheet:SetPos(5,30)
  	self.PropertySheet:SetSize(self.Frame:GetWide() - 10,self.Frame:GetTall() - 35)
+	
+	function self:SetTab(panel)
+		for k,sheet in pairs(self.PropertySheet.Items) do
+			if sheet.Panel == panel then
+				self.PropertySheet:SetActiveTab(sheet.Tab)
+				return
+			end
+		end
+	end
 
 	-- register function needs to be rewritten, does not catch all errors and bugs luamenu sometimes
 
