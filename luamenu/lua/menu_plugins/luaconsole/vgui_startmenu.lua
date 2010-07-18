@@ -56,6 +56,9 @@ function PANEL:Init()
 	self:AddButtonToSide("Control Panel", function()
 		vgui.Create"OS_ControlMenu"
 	end)
+	self:AddButtonToSide("Source Console toggle", function()
+		MenuCommand("toggleconsole")
+	end)
 end
 
 function PANEL:Close()
