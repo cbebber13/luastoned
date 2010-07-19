@@ -217,6 +217,10 @@ function GetMenuVar(str)
 	return nil
 end
 
+function SaveSettings()
+	file.Write("luamenu/settings.txt",glon.encode(LuaMenu.Settings))
+end
+
 function LoadSettings()
 	if !file.Exists("luamenu/settings.txt") then
 		SaveSettings()
@@ -225,10 +229,6 @@ function LoadSettings()
 	LuaMenu.Settings = table.Merge(LuaMenu.Settings, glon.decode(file.Read("luamenu/settings.txt")))
 end
 LoadSettings()
-
-function SaveSettings()
-	file.Write("luamenu/settings.txt",glon.encode(LuaMenu.Settings))
-end
 
 --------------------------------------------------
 -- Load plugins based on their prefix
