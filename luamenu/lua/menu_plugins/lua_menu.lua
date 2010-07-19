@@ -160,9 +160,22 @@ Member vars
 --------------------------------------------------
 
 require("luamenu")
+require("menuplayer")
 require("oosocks")
 require("glon")
 require("json")
+
+-- SteamID Fix, don't ask why...
+local meta = FindMetaTable("MenuPlayer")
+
+function meta.__index:CommunityID()
+	local friendid = self:FriendID()
+	print(friendid)
+	local auth = friendid / 2 % 2 == 1 and 1 or 0
+	print(auth)
+
+	return string.format("765%0.f",friendid + 61197960265728 + auth)
+end
 
 --------------------------------------------------
 -- Hook LuaConsole
