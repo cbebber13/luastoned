@@ -3,6 +3,10 @@ PANEL.Name = "Web Browser"
 PANEL.Desc = "Browse the web!"
 PANEL.TabIcon = "gui/silkicons/application"
 
+-- Settings
+local iButtonSize = 24
+local iButtonSpacing = 5
+
 function PANEL:Init()
 	self.FHist = {}
 	self.History = {}
@@ -50,6 +54,7 @@ function PANEL:Init()
 	
 	self.Browser = vgui.Create("HTML",self)
 	self.Browser:OpenURL(self.Settings["Homepage"])
+	self.AddressBar:SetValue(self.Settings["Homepage"])
 	
 	self.Browser.StatusChanged = function(panel,url)
 		-- The text in the status bar has changed
@@ -59,7 +64,7 @@ function PANEL:Init()
 
 	self.Browser.ProgressChanged = function(panel,progress)
 		-- Loading progress changed
-		print(progress)
+		--print(progress)
 	end
 
 	self.Browser.FinishedURL = function(panel,url)
@@ -67,7 +72,7 @@ function PANEL:Init()
 		if self.ShouldLog then		
 			table.insert(self.VisitedSites,url)
 		end
-		print(url)
+		--print(url)
 	end
 
 	self.Browser.OpeningURL = function(panel,url,target)
@@ -106,31 +111,39 @@ function PANEL:Init()
 	self.StatusLabel:SetExpensiveShadow(1,color_black)
 	
 	self.Refresh = vgui.Create("DImageButton",self)
-	self.Refresh:SetImage("gui/silkicons/arrow_refresh")
+	self.Refresh:SetImage("gui/chromium/reload_noborder")
 	self.Refresh.DoClick = function(button)
 		self.Browser:Refresh()
 	end
-	self.Refresh:SetTooltip("Refresh current site")
+	self.Refresh:SetTooltip("Reload Page")
 	
 	self.Stop = vgui.Create("DImageButton",self)
-	self.Stop:SetImage("gui/silkicons/check_off")
+	self.Stop:SetImage("gui/chromium/stop_noborder")
 	self.Stop.DoClick = function(button)
 		self.Browser:Stop()
 	end
-	self.Stop:SetTooltip("Stop loading current page")
+	self.Stop:SetTooltip("Stop Page Load")
 	
 	self.FavButton = vgui.Create("DImageButton",self)
-	self.FavButton:SetImage"gui/silkicons/star"
+	self.FavButton:SetImage"gui/chromium/menu_bookmark"
 	self.FavButton.DoClick = function(button)
 		local menu = DermaMenu()
+		local favCount = 0
 		for k,fav in pairs(self.Settings["Favorites"]) do
-			menu:AddOption(fav[2],function()
-				local url = fav[1]
-				if url:sub(1,7) ~= "http://" and url:sub(1,8) ~= "https://" then
-					url = "http://"..url
-				end
-				self.Browser:OpenURL(url)
-			end)
+			if(type(fav[2]) == "string") then
+				menu:AddOption(fav[2],function()
+					local url = fav[1]
+					if url:sub(1,7) ~= "http://" and url:sub(1,8) ~= "https://" then
+						url = "http://"..url
+					end
+					self.Browser:OpenURL(url)
+				end)
+				favCount = favCount + 1
+			end
+		end
+		
+		if(favCount > 0) then
+			menu:AddSpacer()
 		end
 		
 		menu:AddOption("Add Favorite",function()
@@ -146,31 +159,40 @@ function PANEL:Init()
 			text2:SetWide(296)
 			text2:SetValue("Name of favorite")
 			text1.OnEnter = function()
-				table.insert(self.Settings["Favorites"], {text1:GetValue(), text2:GetValue()})
+				table.insert(self.Settings["Favorites"], {text1:GetValue() or "", text2:GetValue() or ""})
 				file.Write("luamenu/browser.txt", glon.encode(self.Settings))
 				frame:Close()
 			end
 			text2.OnEnter = text1.OnEnter
-			frame:SetSize( 300, 31 + text1:GetTall() + text2:GetTall() )
+			local button = vgui.Create("DButton", frame)
+			button:SetPos(2, 29 + text1:GetTall() + text2:GetTall())
+			button:SetWide(296)
+			button:SetText("Add")
+			button.DoClick = text1.OnEnter
+			frame:SetSize(300, 33 + text1:GetTall() + text2:GetTall() + button:GetTall())
 			frame:Center()
 		end)
+		
 		local menu2 = menu:AddSubMenu("Remove Favorite")
-		if #self.Favorites > 0 then
-			for k, v in pairs(self.Favorites) do
-				menu2:AddOption(v[2],function()
-					table.remove(self.Settings["Favorites"],k)
-					file.Write("luamenu/browser.txt", glon.encode(self.Settings))
-				end)
+		if #self.Settings["Favorites"] > 0 then
+			for k, v in pairs(self.Settings["Favorites"]) do
+				if(type(v[2]) == "string") then
+					menu2:AddOption(v[2],function()
+						table.remove(self.Settings["Favorites"],k)
+						file.Write("luamenu/browser.txt", glon.encode(self.Settings))
+					end)
+				end
 			end
 		else
 			menu2:AddOption("None")
 		end
+		menu:SetPos(gui.MouseX(), gui.MouseY())
 		menu:Open()
 	end
 	self.FavButton:SetTooltip("Favorites")
 	
 	self.Forward = vgui.Create("DImageButton",self)
-	self.Forward:SetImage("gui/silkicons/arrow_right")
+	self.Forward:SetImage("gui/chromium/forward_noborder")
 	self.Forward.DoClick = function(button)
 		if !self.FHist[#self.FHist] then return end
 		table.insert(self.History,self.FHist[#self.FHist])
@@ -180,7 +202,7 @@ function PANEL:Init()
 	self.Forward:SetTooltip("Forward")
 	
 	self.Back = vgui.Create("DImageButton",self)
-	self.Back:SetImage("gui/silkicons/arrow_left")
+	self.Back:SetImage("gui/chromium/back_noborder")
 	self.Back.DoClick = function(button)
 		if !self.History[#self.History] then return end
 		table.insert(self.FHist,self.Browser.URL)
@@ -188,44 +210,40 @@ function PANEL:Init()
 		table.remove(self.History,#self.History)
 		table.remove(self.History,#self.History)
 	end
-	self.Back:SetTooltip("Back")
+	self.Back:SetTooltip("Backward")
 	
-	/*self.URLBar.OnGetFocus = function( panel )
 	
-		local x,y = panel:GetPos()
-		local Menu = DermaMenu()
-		Menu:SetParent( self.Frame )
-		Menu:SetPos( x, y + panel:GetTall() )
-		
-		for k,v in ipairs( self.VisitedSites ) do		
-			if k <= 6 then			
-				Menu:AddOption( v, function()				
-					self.ShouldLog = false
-					self.WebKit:OpenURL( v )					
-				end )				
-			end
-		end		
-		timer.Simple( 3, function()		
-			if IsValid( Menu ) then			
-				Menu:Remove()				
-			end			
-		end )		
-	end*/
+	--[[ Button layout ]]--
+	local x = iButtonSpacing
 	
-	self.Refresh:SetPos(45,5)
-	self.Refresh:SetSize(16,16)
+	self.Back:SetPos(x,iButtonSpacing)
+	self.Back:SetSize(iButtonSize,iButtonSize)
 	
-	self.Stop:SetPos(65,5)
-	self.Stop:SetSize(16,16)
+	x = x + iButtonSize + iButtonSpacing
 	
-	self.Forward:SetPos(25,5)
-	self.Forward:SetSize(16,16)
+	self.Forward:SetPos(x,iButtonSpacing)
+	self.Forward:SetSize(iButtonSize,iButtonSize)
 	
-	self.Back:SetPos(5,5)
-	self.Back:SetSize(16,16)
 	
-	self.FavButton:SetPos(85,5)
-	self.FavButton:SetSize(16,16)
+	
+	x = x + iButtonSize + iButtonSpacing * 3
+	
+	self.Refresh:SetPos(x,iButtonSpacing)
+	self.Refresh:SetSize(iButtonSize,iButtonSize)
+	
+	x = x + iButtonSize + iButtonSpacing
+	
+	self.Stop:SetPos(x,iButtonSpacing)
+	self.Stop:SetSize(iButtonSize,iButtonSize)
+	
+	x = x + iButtonSize + iButtonSpacing
+	
+	self.FavButton:SetPos(x,iButtonSpacing)
+	self.FavButton:SetSize(iButtonSize,iButtonSize)
+	
+	
+	
+	self.AddressBarX = x + iButtonSize + iButtonSpacing
 	
 	
 	LuaMenu.Panel.WebBrowser = self
@@ -233,22 +251,22 @@ end
 
 function PANEL:PerformLayout()
 	self:StretchToParent(4,27,4,4)
-	self.AddressBar:StretchToParent(110,5,200,self:GetTall() - 24)
-	self.SearchBar:StretchToParent(self.AddressBar:GetWide() + 109,5,5,self:GetTall() - 24)
-	--self.Refresh:StretchToParent()
-	--self.Stop:StretchToParent()
-	--self.Forward:StretchToParent()
-	--self.Back:StretchToParent()
-	--self.FavButton:StretchToParent()
+	self.AddressBar:StretchToParent(self.AddressBarX,iButtonSpacing,200,self:GetTall() - iButtonSpacing - iButtonSize)
+	self.SearchBar:StretchToParent(self.AddressBarX + iButtonSpacing + self.AddressBar:GetWide(),iButtonSpacing,iButtonSpacing,self:GetTall() - iButtonSpacing - iButtonSize)
+
 	self.Refresh.m_Image:SetPos(0,0)
 	self.Stop.m_Image:SetPos(0,0)
 	self.Forward.m_Image:SetPos(0,0)
 	self.Back.m_Image:SetPos(0,0)
 	self.FavButton.m_Image:SetPos(0,0)
 	
-	self.Browser:StretchToParent(0,24,0,24)
-	self.StatusBar:StretchToParent(0,self.Browser:GetTall() + 29,0,0)
+	self.Browser:StretchToParent(0,iButtonSpacing + iButtonSize + iButtonSpacing + iButtonSpacing,0,28)
+	self.StatusBar:StretchToParent(0,iButtonSpacing + iButtonSize + iButtonSpacing + iButtonSpacing + self.Browser:GetTall() + iButtonSpacing,0,0)
 end
 
 function PANEL:Paint()
+	draw.RoundedBox(4, 0, 0, self:GetWide(), iButtonSpacing + iButtonSize + iButtonSpacing, Color(32, 32, 32, 64))
+end
+
+function PANEL:Think()
 end
