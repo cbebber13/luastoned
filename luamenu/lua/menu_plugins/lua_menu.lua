@@ -49,6 +49,7 @@ LuaMenu = {
 	},
 	Closed = true,
 	CloseFrames = {},
+	CPanelTabs = {},
 }
 
 function LuaMenu:Reload(str) -- Add a basic reload command, something might break >:O
@@ -162,6 +163,7 @@ Member vars
 require("luamenu")
 require("menuplayer")
 require("oosocks")
+require("curly")
 require("glon")
 require("json")
 
@@ -267,6 +269,12 @@ function LuaMenu:Load(arg)
 		LuaMenu.Skins[SKIN.Name] = SKIN
 		SKIN = tmp
 	end
+	/*for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/cp_*.lua")) do
+		local tbl = vgui.RegisterFile("menu_plugins/luaconsole/"..lua)
+		tbl.Name = tbl.Name or "**ERROR** - NO NAME"
+		tbl.Icon = tbl.Icon or "**ERROR** - NO ICON"
+		table.insert(self.CPanelTabs, tbl)
+	end*/
 end
 LuaMenu:Load()
 
@@ -282,6 +290,44 @@ surface.CreateFont("Default"	,14		,700	,true	,false	,"Default14")
 --------------------------------------------------
 -- Helper functions
 --------------------------------------------------
+
+function GetInfoLevel(str)
+	for i=1,5 do -- 5 levels max, otherwise the addon maker is a retard
+		local lvl = string.rep("/*",i-1)
+		if file.Find("../addons/"..str..lvl.."/info.txt") > 0 then
+			return i
+		end
+	end
+	return false
+end
+
+--Addonissimo.FullReload()
+
+function InstallAddon(url)
+	local curl = Curly()
+	curl:SetUrl(url)
+	curl:SetOptNumber(CURLOPT_FOLLOWLOCATION, 1)
+	curl:SetBinaryMode(true)
+	curl:SetCallback(function(curl,err,data)
+		Derma_StringRequest("File name?","Please enter a name for the file.","tmp_"..math.random(9)..math.random(9)..math.random(9),function(str)
+			local tbl = {}
+			local size = data:GetSize()
+			debug.sethook()
+			while true do
+				if data:GetReadPosition() >= size then
+					break
+				end
+				table.insert(tbl,data:ReadString())
+			end
+			if data:GetReadPosition() == size then
+				table.insert(tbl,string.char(data:ReadByte()))
+			end
+			WriteAddon(str..".zip",table.concat(tbl,"\0"))
+			print("Downloaded "..str..".zip successfully!")
+		end)
+	end)
+	curl:Perform()
+end
 
 local ExtraTabs = {} -- tobba DEV
 function LuaMenu.AddTab(...)
@@ -408,13 +454,21 @@ LuaMenu.FrameBar:MakePopup()
 table.insert(LuaMenu.CloseFrames,LuaMenu.FrameBar)
 
 function LuaMenu:AddFrame(panel,name,align)
-	panel.SysButton = vgui.Create("DSysButton")
-	panel.SysButton:SetParent(panel)
-	panel.SysButton:SetPos(panel:GetWide()-40,0)
-	panel.SysButton:SetSize(20,20)
-	panel.SysButton:SetType("down") -- This can be "up", "down", "left", "right", "updown", "close", "grip", "tick", "question", and "none".
-	panel.SysButton.Paint = function() end
-	panel.SysButton.DoClick = function(self) panel:SetVisible(false) end
+	if !panel.SysButton then
+		panel.SysButton = vgui.Create("DSysButton")
+		panel.SysButton:SetParent(panel)
+		panel.SysButton:SetPos(panel:GetWide()-40,0)
+		panel.SysButton:SetSize(20,20)
+		panel.SysButton:SetType("down") -- This can be "up", "down", "left", "right", "updown", "close", "grip", "tick", "question", and "none".
+		panel.SysButton.Paint = function() end
+		panel.SysButton.DoClick = function(self) panel:SetVisible(false) end
+		panel.SysPerformLayout = panel.PerformLayout
+		panel.PerformLayout = function(self)
+			self.SysButton:SetPos(self:GetWide()-40,0)
+			self.SysPerformLayout(self)
+		end
+	end
+		
 		
 	-- Move this code to the bar as soon as possible
 	local buttontab = vgui.Create("DButton")
@@ -485,7 +539,7 @@ function LuaMenu:Init()
 			tab:PerformLayout()
 		end
 		LuaMenu.PropertySheet:PerformLayout()
-		self:OldPerformLayout(self)
+		self.OldPerformLayout(self)
 	end
 	self.Paint = self.Frame.Paint
 	self.Frame.Paint = function(frame)
