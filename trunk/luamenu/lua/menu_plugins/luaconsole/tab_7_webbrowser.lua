@@ -12,6 +12,7 @@ function PANEL:Init()
 	self.History = {}
 	self.Settings = {}
 	self.ShouldLog = true
+	self.Downloaded = {}
 	self.VisitedSites = {}
 	if file.Exists("luamenu/browser.txt") then
 		self.Settings = glon.decode(file.Read("luamenu/browser.txt"))
@@ -78,6 +79,10 @@ function PANEL:Init()
 	self.Browser.OpeningURL = function(panel,url,target)
 		-- Page wants to open URL.
 		-- Return true to not load URL.
+		if url:find("s3.garrysmod.org") and !table.HasValue(self.Downloaded,url) then -- download
+			table.insert(self.Downloaded,url)
+			InstallAddon(url)
+		end
 		if !self.AddressBar:HasFocus() then
 			self.AddressBar:SetValue(url)
 		end
@@ -212,7 +217,6 @@ function PANEL:Init()
 	end
 	self.Back:SetTooltip("Backward")
 	
-	
 	--[[ Button layout ]]--
 	local x = iButtonSpacing
 	
@@ -222,9 +226,7 @@ function PANEL:Init()
 	x = x + iButtonSize + iButtonSpacing
 	
 	self.Forward:SetPos(x,iButtonSpacing)
-	self.Forward:SetSize(iButtonSize,iButtonSize)
-	
-	
+	self.Forward:SetSize(iButtonSize,iButtonSize)	
 	
 	x = x + iButtonSize + iButtonSpacing * 3
 	
@@ -241,10 +243,7 @@ function PANEL:Init()
 	self.FavButton:SetPos(x,iButtonSpacing)
 	self.FavButton:SetSize(iButtonSize,iButtonSize)
 	
-	
-	
-	self.AddressBarX = x + iButtonSize + iButtonSpacing
-	
+	self.AddressBarX = x + iButtonSize + iButtonSpacing	
 	
 	LuaMenu.Panel.WebBrowser = self
 end

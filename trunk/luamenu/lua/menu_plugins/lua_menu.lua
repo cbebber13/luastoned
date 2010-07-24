@@ -269,12 +269,12 @@ function LuaMenu:Load(arg)
 		LuaMenu.Skins[SKIN.Name] = SKIN
 		SKIN = tmp
 	end
-	/*for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/cp_*.lua")) do
+	for k,lua in pairs(file.FindInLua("menu_plugins/luaconsole/cp_*.lua")) do
 		local tbl = vgui.RegisterFile("menu_plugins/luaconsole/"..lua)
 		tbl.Name = tbl.Name or "**ERROR** - NO NAME"
 		tbl.Icon = tbl.Icon or "**ERROR** - NO ICON"
-		table.insert(self.CPanelTabs, tbl)
-	end*/
+		table.insert(self.CPanelTabs,tbl)
+	end
 end
 LuaMenu:Load()
 
@@ -301,10 +301,8 @@ function GetInfoLevel(str)
 	return false
 end
 
---Addonissimo.FullReload()
-
 function InstallAddon(url)
-	local curl = Curly()
+	/*local curl = Curly()
 	curl:SetUrl(url)
 	curl:SetOptNumber(CURLOPT_FOLLOWLOCATION, 1)
 	curl:SetBinaryMode(true)
@@ -324,9 +322,12 @@ function InstallAddon(url)
 			end
 			WriteAddon(str..".zip",table.concat(tbl,"\0"))
 			print("Downloaded "..str..".zip successfully!")
+			timer.Simple(2,function() UnZipAddon(str..".zip") end)
+			timer.Simple(5,function() if Addonissimo then Addonissimo.FullReload() end end)
 		end)
 	end)
-	curl:Perform()
+	curl:Perform()*/
+	print("[LuaMenu] Installer will work soon!")
 end
 
 local ExtraTabs = {} -- tobba DEV
